@@ -46,8 +46,9 @@ Structure are as follows:
 Detailed explanation of each table.
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	Used to create the main elements
-		SysBaseElements_Tbl
-			Contains the diccionary of all system elements of the Microservice.
+		ArtDataElements_Tbl
+			Contains the diccionary of all articles data elements of the Microservice.
+
 			The rest of the tables only have the IDNum. To determine what a code means, you should consult this table.
 			In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
 			To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
