@@ -1,4 +1,4 @@
-# Apolo-Articles-MySql
+## Apolo-Articles-MySql
 CREATE DATABASE `articlesdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
 Main Structure of all Microservices
@@ -6,26 +6,41 @@ Group: com.apolo
 Name: system / articles / persons / users
 
 ========================================================================================================================================================================================
-Importan Definitions:
+#### Importan Definitions:
 	System Microservice contains the system structure of all the software. In this module you need to create all the databases and java classes, enums, interfaces, entities, etc.
-	The main tables of this module will be in the other databases such as mirrors. These mirror tables will be updated via Kafka topics.
+	The main tables of this module will be in the other databases such as mirrors. 
+ 	These mirror tables will be updated via Kafka topics, but for the only record that are used by this Articles Microservices.
 	With this mechanism each microservice becames independent of the others. Example: MirSysCompanies, MirSysBusinessUnits, etc.
 	One important thing, is you make a mirror only of the records that need in the other microservice, not all the records that exists in the System Microservice.
 	The are three types of tables.
 		Tli is the list table, in which only enable the IDNum for one Microservice and BusinessUnit. This kind of table do not have any relation with others.
 		Tbl is the normal table, where stores the specific software data. This kind of table have relation with others tables of the same kind.
   				Tables with their owns ID and IDNum. These are the common tables.
-	  			Tables without owns ID and IDNum, It is generated in SysBaseElements_Tbl.
+	  			Tables without owns ID and IDNum, It is generated in ArtDataElements_Tbl.
 	  				Microservice_Tbl has not their own ID and IDNum.
-    Mir is a mirror table, theses tables are updated throw kafka.
+    	Mir is a mirror table, theses tables are updated throw kafka.
 	All tables have the key for each record:
 		ID		--> is the uniqueidentifier auto generated.
 		IDNum	--> is the autoincrement number auto generated.
+
+	The Microservices Structure are defined by:
+ 		ApoloSystemsMicroSs
+   			This microservices have the next structure
+	  			ApoloSystemsMicroSs a Java project.
+	  				This java project is a Resfull service, that contain the information of all system structure software.
+	  			SystemsDB a MySql database.
+	  				This database contain the permanet information of all the System software.
+	   			Kafka Topics
+	   				To update all the other Microservices 
+   		ApoloArticlesMicroSs
+	 
+	 	ApoloClientsMicroSs
+  
 ========================================================================================================================================================================================
 Structure are as follows:
 	Used to create the main elements
 		ArtDataElements_Tbl	--> Contains the diccionary of all articles data elements of the Microservice.
-		ArtDataElementLanguages_Tbl	--> Contains the meaning of the diccionary in other languages.
+		ArtDataElementLanguages_Tbl	--> Contains the meaning of the diccionary in another languages than the default.
 		ArtDataElementComments_Tbl	--> Contains one or more comments/details/explains of each record of the diccionary.
 	Used to create multiples tables
 		ArtRootElements_Tli	--> This is a List Table that contains the other data element of the system. Enable the IDNum element to a Microservice.
@@ -38,7 +53,7 @@ Structure are as follows:
         ArticleOptionalFields_Tbl  --> Contains the optional fields/columns of the articles informations.
         ArtRelations_Tbl  --> Contains the relation between articles. It could be substitutes, complementary, etc.
     Used to create the Mirror Tables
-		ArtSysBaseElements_Mir	--> Contain a mirror of the SysBaseElement_Tbl information.
+		ArtSysBaseElements_Mir	--> Contain a mirror of the ArtDataElements_Tbl information.
         ArtSysCompanies_Mir  --> Contain a mirror of the SysCompanies_Tbl information.
         ArtSysMicroservices_Mir  --> Contain a mirror of the SysMicroservices_Tbl information.
 
@@ -48,7 +63,6 @@ Detailed explanation of each table.
 	Used to create the main elements
 		ArtDataElements_Tbl
 			Contains the diccionary of all articles data elements of the Microservice.
-
 			The rest of the tables only have the IDNum. To determine what a code means, you should consult this table.
 			In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
 			To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
@@ -58,9 +72,9 @@ Detailed explanation of each table.
 			The unique Key is the union of:
 			  IDName     		-> is the readable code by the user.
 			  ScopeIDn     		-> the Name must be unique for the application Scope, usually a Table.
-			  BusinessUnitIDn 	-> the Name must be unique for the BusinessUnit.
+			  GroupIDn 			-> the Name must be unique for the Group.
 			  LanguageIDn 		-> the Name must be unique for Language. This dictionary has a default language defined.
-			Important: when you create the element/object in this tabel, this element does not exits for the software. This table is like a dictionary.
+			Important: when you create the element/object in this table, this element does not exits for the software. This table is like a dictionary.
 						Only exist when you create the code in the specific table.
 				Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
 			Modification Rules:
@@ -79,7 +93,7 @@ Detailed explanation of each table.
 					DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
 					TableHistory		-->	The TableHistory contain then change history of each column.
 	 		Comments:
-				In each microservice and database, you have one DataElement_Tbl. It work as a specific dictionary for it.
+				In each microservice and database, you have one DataElements_Tbl. It work as a specific dictionary for it.
 				Example:
 					In the System Microservice you have the meaning of all databases tables, columns, stored procedures, views, java entities, classes, etc.
 					In the Person Microservice you have the meaning of all person (legal or natural) whom can interact with the system.
@@ -88,20 +102,20 @@ Detailed explanation of each table.
 			Tips:
 				The ScopeIDn + BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.
 
-		SysBaseElementLanguages_Tbl	
+		ArtDataElementLanguages_Tbl	
 			Contains the meaning of the diccionary in another languages than the default.
-			In this table you have to comply with the same rules as the SysBaseElements_Tbl.
-			Important Clarification: the values IdNum, ScopeIDn, CompanyIDn = are always equal to the ApplTDataElement table. 
+			In this table you have to comply with the same rules as the ArtBaseElements_Tbl.
+			Important Clarification: the values IdNum, ScopeIDn, CompanyIDn = are always equal to the ArtDataElements_Tbl. 
 									 These columns are put in this table only to ensure integrity and that there are no duplicates.
 		    The key for each record:
 				ID		--> is the uniqueidentifier auto generated.
 				IDNum	--> is the autoincrement number auto generated.
 			The unique Key is the union of:
 			  	-- This three values are defined by the user.
-			  	BaseElementLanguageIDn	--> the IdNum of the element that has another languages meaning. It is created in the SysBaseElements_Tbl.
+			  	DataElementLanguageIDn	--> the IdNum of the element that has another languages meaning. It is created in the ArtDataElements_Tbl.
 			  	NameID     		-> is the readable code by the user.
 			  	LanguageIDn 	-> the LanguagesIDn must be diferent from the default language.
-			  	-- This two values are set by the system automaticaly, and are the same as the SysBaseElement_Tbl. For do that use the IdNum.
+			  	-- This two values are set by the system automaticaly, and are the same as the ArtDataElements_Tbl. For do that use the IdNum.
 			  	ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table.
 			  	BusinessUnitIDn	-> the Name must be unique for the BusinessUnit.
 			Common Field/Columns for all tables
@@ -116,7 +130,7 @@ Detailed explanation of each table.
 			Tips:
 				The ScopeIDn + BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.
 	
-		SysBaseElementComments_Tbl	
+		ArtDataElementComments_Tbl	
 			Contains one or more descriptions/comments/details/explains of each record of the diccionary.
 			It has a defined language, an order when there is more than one description, a type of text format (mimetype), a status and the date of the last update.
 			If the element has not been recorded in this table, it means the element has not clarifications.
@@ -124,7 +138,7 @@ Detailed explanation of each table.
 				ID		--> is the uniqueidentifier auto generated.
 				IDNum	--> is the autoincrement number auto generated.
 			The unique Key is the union of:
-			  	This table have not unique key because one IDNum can have none, one or more coments.
+			  	This table have not unique key because one IDNum can have none, one or more comments.
 			Common Field/Columns for all tables
 				The objective of these are to store critical information for the system and the record history.
 					StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
@@ -139,30 +153,32 @@ Detailed explanation of each table.
 	
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  	Used to create the Companies
-		SysCompanies_Tbl
-			Contains the companies that use the software. 
-			The Companies exists since you create them in this table. Its information, of what are they, are in the SysBaseElements_Tbl table.
+		SysCompanies_Mir
+			Contains the Mirror of the companies that use the software. 
+			Each record is updated from SysCompanies_Tbl, which belongs to the SystemsDB database.
+   			The Companies exists since you create them in this table. Its information, of what are they, are in the SysBaseElements_Mir table.
 			The key for each record:
 				This table has not its own key, because in this table you only enable the company to all the system.
 			The unique Key is the union of:
-				CompanyIDn		--> The Company can not be duplicated. Link with the SysBaseElements_Tbl.
+				CompanyIDn		--> The Company can not be duplicated. Link with the ArtDataElements_Tbl.
 			Common Field/Columns for all tables
 				This table do not have another field, because the store critical information for the system and the record history are set in SysBaseElements_Tbl.
 
   	Used to create the Microservices
-		SysMicroservices_Tbl
-			Contains the microservices that use the software. 
-			The Microservices exists since you create them in this table. Its information, of what are they, are in the SysBaseElements_Tbl table.
+		SysMicroservices_Mir
+			Contains the Mirro of the microservices that use the software. 
+   			Each record is updated from SysMicroservices_Tbl, which belongs to the SystemsDB database.
+			The Microservices exists since you create them in this table. Its information, of what are they, are in the SysBaseElements_Mir table.
 			The key for each record:
 				This table has not its own key, because in this table you only enable the microservice to all the system.
 			The unique Key is the union of:
 				MicroserviceIDn		--> The Microservice can not be duplicated. Link with the SysCompanies_Tbl.
 			Common Field/Columns for all tables
-				This table do not have another field, because the store critical information for the system and the record history are set in SysBaseElements_Tbl.
+				This table do not have another field, because the store critical information for the system and the record history are set in ArtDataElements_Tbl.
 
  	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	Used to create multiples tables
-		SysRootElements_Tli
+		ArtRootElements_Tli
    			This Is a List Table that contains the other element of the system. Enable the IDNum element to a Microservice.
 			The key for each record:
 				ID		--> is the uniqueidentifier auto generated.
@@ -189,8 +205,9 @@ Detailed explanation of each table.
 					 
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	Used to create the software structure
-		SysEntities_Tli	
-			This is a List Table that contains the entities of the system, they can be database tables or java classes. 
+		ArtGeneral_Tbl 
+			Contains the general information of the articles.
+   This is a List Table that contains the entities of the system, they can be database tables or java classes. 
 			Enable the IDNum element to a Microservice.
 			The key for each record:
 				ID		--> is the uniqueidentifier auto generated.
@@ -211,14 +228,17 @@ Detailed explanation of each table.
 					TableHistory		-->	The TableHistory contain then change history of each column.
 	 		Important:
 				The Entity is enable in the SysEntities_Tli for a Microservice.
-				The data is created in the SysBaseElement_Tbl and is the same to all the BusinessUnit.
+				The data is created in the ArtDataElements_Tbl and is the same to all the BusinessUnit.
 				When I assign the entity, I define the business unit owner and the microservice it belongs to.
 			Kafka/rabbitMq Topic:
 				The combination of EntityIDn + MicroserviceIDn combination can be used.	 
-	
+
+
+ArtGeneral_Tbl    --> Contains the general information of the articles. 
+ 
 		SysEntityFields_Tli	
 			This is a List Table that contains the fields or the columns of the system. Enable the IDNum element to a Microservice.
-			The fields exits to the Microservice, since you create it in this table. The information, of what are they, are in the SysBaseElement_Tbl table.
+			The fields exits to the Microservice, since you create it in this table. The information, of what are they, are in the ArtDataElements_Tbl table.
 			The key for each record:
 				ID		--> is the uniqueidentifier auto generated.
 				IDNum	--> is the autoincrement number auto generated.
@@ -244,8 +264,8 @@ Detailed explanation of each table.
 				ID		--> is the uniqueidentifier auto generated.
 				IDNum	--> is the autoincrement number auto generated.
 			The unique Key is the union of:
-				FieldIDn 		--> The FieldIDn is the IDNum of the field/column of the entity. Link with the SysBaseElements_Tbl.
-				EntityIDn 		--> The EntityIDn is the IDNum of the entity. Link with the SysBaseElements_Tbl.
+				FieldIDn 		--> The FieldIDn is the IDNum of the field/column of the entity. Link with the ArtDataElements_Tbl.
+				EntityIDn 		--> The EntityIDn is the IDNum of the entity. Link with the ArtDataElements_Tbl.
 				MicroserviceIDn --> the IdNum of the Microservice that the Field and Entity belong. When is equal System, all microservices hava access to them.
 				When an entity is selected from the Entity_Tbl, the Microservice is set, this parameter define the possible fields to be selected.
 			Common Field/Columns for all tables
@@ -265,7 +285,7 @@ Detailed explanation of each table.
 			    ID		--> is the uniqueidentifier auto generated.
 			    IDNum	--> is the autoincrement number auto generated.
 			The unique Key is the union of:
-			    FieldPropertyIDn	--> The FieldPropertyIDn is the IDNum of the field property type. Link with the SysBaseElement_Tbl.
+			    FieldPropertyIDn	--> The FieldPropertyIDn is the IDNum of the field property type. Link with the ArtDataElements_Tbl.
 			    EntityStructureIDn	--> The EntityStructureIDn is the IDNum of the entity structure. Link with the SysEntityStructure_Tbl.
 			                            The EntityStructureIDn has a FieldIDn + EntityIDn + MicroserviceIDn unique key.
 			Common Field/Columns for all tables
@@ -302,7 +322,7 @@ Detailed explanation of each table.
 				ID		--> is the uniqueidentifier auto generated.
 				IDNum	--> is the autoincrement number auto generated.
 			The unique Key is the union of:
-				DefaultVersionIDn	--> The DefaultVersionIDn is the IDNum of the DefaultVersion, defined in the SysBaseElement_Tbl.
+				DefaultVersionIDn	--> The DefaultVersionIDn is the IDNum of the DefaultVersion, defined in the ArtDataElements_Tbl.
 		  		EntityStructureIDn	--> The EntityStructureIDn is the IDNum of the entity structure. Link with the SysEntityStructure_Tbl.
 			                            The EntityStructureIDn has a FieldIDn + EntityIDn + MicroserviceIDn unique key.
 			Common Field/Columns for all tables
@@ -316,7 +336,7 @@ Detailed explanation of each table.
 					TableHistory		-->	The TableHistory contain then change history of each column.
 	 		The table operation:
 				After you select the EntityStructure (FieldIDn + EntityIDn + MicroserviceIDn) you need to define this two fields:
-					DefaultVersionIDn	--> The DefaultVersionIDn is the IDNum of the DefaultVersion, defined in the SysBaseElement_Tbl.
+					DefaultVersionIDn	--> The DefaultVersionIDn is the IDNum of the DefaultVersion, defined in the ArtDataElements_Tbl.
 					FieldDefaultValue	--> The FieldDefaultValue is a value that must be the same DataType of the field defined in the SysEntityStructures_Tbl.
 				You can define more than one version. 
 				Example: If you have to import some data from two diferent suppliers, you can define two diferent version. 
