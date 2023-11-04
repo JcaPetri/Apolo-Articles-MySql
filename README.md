@@ -26,24 +26,23 @@ Name: system / articles / persons / users
 	The Apolo Software Structure are defined by:
  		Frontend
    			This is the user interface, which call the backend to get the information and business logic.
-	  		Example:
-	 			To create an invoice, you need the information of:
-	 				Clients -> call the PersonsMicroservices, which has all the information about the clients/supplier/both.
-	  							The parameters request are: 
-		  									Endpoint: this is the  address of the Microservice.
-			 								Group: this can be Clients types, BusinessUnits, etc.
-											Others parameters defined by the microservice, needed to comply the request.
-	   				Articles -> call the ArticlesMicroservices, which has all information about the articles and theirs relations.
-	   	  							The parameters request are: 
-		  									Endpoint: this is the  address of the Microservice.
-			 								Group: this can be articles types, BusinessUnits, etc.
-											Others parameters defined by the microservice, needed to comply the request.
-		   			Taxes -> call the TaxesMicrosevices, which has all infomation about the taxes subject.
-	   	  							The parameters request are: 
-		  									Endpoint: this is the  address of the Microservice.
-			 								GeneratorID: the seller ID.
-			 								DestiantionID: the client ID.
-											Others parameters defined by the microservice, needed to comply the request.
+	  		Example to create an invoice, you need the information of:
+				Clients -> call the PersonsMicroservices, which has all the information about the clients/supplier/both.
+						The parameters request are: 
+									Endpoint: this is the  address of the Microservice.
+									Group: this can be Clients types, BusinessUnits, etc.
+									Others parameters defined by the microservice, needed to comply the request.
+				Articles -> call the ArticlesMicroservices, which has all information about the articles and theirs relations.
+						The parameters request are: 
+								Endpoint: this is the  address of the Microservice.
+								Group: this can be articles types, BusinessUnits, etc.
+								Others parameters defined by the microservice, needed to comply the request.
+				Taxes -> call the TaxesMicrosevices, which has all infomation about the taxes subject.
+						The parameters request are: 
+								Endpoint: this is the  address of the Microservice.
+								GeneratorID: the seller ID.
+								DestiantionID: the client ID.
+								Others parameters defined by the microservice, needed to comply the request.
 			
 		Backend
    			This is the logic and where the permanent information are stored.
@@ -72,6 +71,10 @@ Name: system / articles / persons / users
 		   			This microservices has the information about:
 						The persons and all information about.
 	  					The traders and the relations with the persons.
+						The relationship between Business and theirs customers or suppliers, are throw the traders. Are not direct with the real person.
+	  					The reason is that the Customer can change the cuit, the business name, or want to charge the bill to another cuit. But the Customer is the same.
+						If the trader has only one persons relation, the software automaticaly make the selection.
+	  					If the trade has two or more persons relations, the user must to select to wich person want to charge the invoice.
 	  				The microservices structure are defined by:
 			  			Java project called ApoloUsersMicroSs, this a restfull webservice java project.
 			  			MySql database called UsersDB, this contain the permanent information of all the Users.
