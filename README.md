@@ -23,18 +23,63 @@ Name: system / articles / persons / users
 		ID		--> is the uniqueidentifier auto generated.
 		IDNum	--> is the autoincrement number auto generated.
 
-	The Microservices Structure are defined by:
- 		ApoloSystemsMicroSs
-   			This microservices have the next structure
-	  			ApoloSystemsMicroSs a Java project.
-	  				This java project is a Resfull service, that contain the information of all system structure software.
-	  			SystemsDB a MySql database.
-	  				This database contain the permanet information of all the System software.
-	   			Kafka Topics
-	   				To update all the other Microservices 
-   		ApoloArticlesMicroSs
+	The Apolo Software Structure are defined by:
+ 		Frontend
+   			This is the user interface, which call the backend to get the information and business logic.
+	  		Example:
+	 			To create an invoice, you need the information of:
+	 				Clients -> call the PersonsMicroservices, which has all the information about the clients/supplier/both.
+	  							The parameters request are: 
+		  									Endpoint: this is the  address of the Microservice.
+			 								Group: this can be Clients types, BusinessUnits, etc.
+											Others parameters defined by the microservice, needed to comply the request.
+	   				Articles -> call the ArticlesMicroservices, which has all information about the articles and theirs relations.
+	   	  							The parameters request are: 
+		  									Endpoint: this is the  address of the Microservice.
+			 								Group: this can be articles types, BusinessUnits, etc.
+											Others parameters defined by the microservice, needed to comply the request.
+		   			Taxes -> call the TaxesMicrosevices, which has all infomation about the taxes subject.
+	   	  							The parameters request are: 
+		  									Endpoint: this is the  address of the Microservice.
+			 								GeneratorID: the seller ID.
+			 								DestiantionID: the client ID.
+											Others parameters defined by the microservice, needed to comply the request.
+			
+		Backend
+   			This is the logic and where the permanent information are stored.
+	  		Each Microservice specializes in a specific task. 
+	 		Next are the Apolo Microcervices Structure are defined by:
+		 		SystemsMicroSs
+		   			This microservices has the information about:
+						The main dictionary of the software.
+	  					The software structure, in java and databases, entities, tables, datatypes, etc.
+	  					The companies and theirs structures.
+						The microservices and the relations with the companies and business units.
+	  					Most of this tables are going to be part of other microservices like mirror tables. But only with data that they need.
+	  				The microservices structure are defined by:
+			  			Java project called ApoloSystemsMicroSs, this a restfull webservice java project.
+			  			MySql database called SystemsDB, this contain the permanent information of all the System software.
+			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
+				UsersMicroSs
+		   			This microservices has the information about:
+						The users, groups of users.
+	  					The permition and authorizations.
+	  				The microservices structure are defined by:
+			  			Java project called ApoloUsersMicroSs, this a restfull webservice java project.
+			  			MySql database called UsersDB, this contain the permanent information of all the Users.
+			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
+			 	PersonsMicroSs
+		   			This microservices has the information about:
+						The persons and all information about.
+	  					The traders and the relations with the persons.
+	  				The microservices structure are defined by:
+			  			Java project called ApoloUsersMicroSs, this a restfull webservice java project.
+			  			MySql database called UsersDB, this contain the permanent information of all the Users.
+			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
+
 	 
-	 	ApoloClientsMicroSs
+  				ArticlesMicroSs
+			 
   
 ========================================================================================================================================================================================
 Structure are as follows:
