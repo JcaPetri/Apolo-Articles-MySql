@@ -1,23 +1,14 @@
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 -- Create the ArtGeneralProperties_Tbl table
-/*
-
--- Contains the general properties of the articles. 
--- 
--- The articles properties are set:
-
-
-Contains the Articles general properties.
-Before create an Article you must create a general specification of the articles.
-  Concept: the articles properties ar set by 
+/*Contains the Articles general properties.
+Before create an Article you must create a general specification of that article.
+  Concept: the articles properties are set by 
       1.- the general properties
       2.- the individual properties, this override the general properties. 
 			When an article (record) is created, the relationship is assigned in the ArtGeneralIDn field.
 The key for each record:
   ID		--> is the uniqueidentifier auto generated.
   IDNum	--> is the autoincrement number auto generated.
-The unique Key is the union of:
-    This table have not unique key because one IDNum can have none, one or more comments.
 The unique Key is the union of:
   ArtGeneralPropertyIDn		-> the ArtGeneralPropertyIDn must be unique for the BusinessUnit.
   BusinessUnitIDn 	-> the ArtGeneralPropertyIDn must be unique for the BusinessUnit.
@@ -31,7 +22,7 @@ Common Field/Columns for all tables
     DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
     TableHistory		-->	The TableHistory contain then change history of each column.			
 Tips:
-  The ScopeIDn + BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.
+  The BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.
 */
 
 -- #########################################################################################################################################################################################
@@ -59,7 +50,6 @@ CREATE TABLE `ArtGeneralProperties_Tbl` (
     `SeriesUseMandatory` tinyint NOT NULL COMMENT 'The SeriesUseMandatory establishes as mandatory the use of the series.',
     `SeriesUseReentry` tinyint NOT NULL COMMENT 'The SeriesUseReentry supports re-entry of series, activates the check for duplicate series (current or already sold). Avoid duplicate serie number.',
     `SeriesUseValidate` tinyint NOT NULL COMMENT 'The SeriesUseValidate, validates that the serial number exists in the system. When an expense voucher is loaded, it validates that the available serial numbers exist.',
-
     `StateIDn` smallint NOT NULL COMMENT 'The StatedIDn define if the record is enable or not.',
 	  `CreatedByIDn` int NOT NULL COMMENT 'The CreatedByIDn is the IdNum of the user who created the record.',
 	  `LastModifiedByIDn` int NOT NULL COMMENT 'The LastModifiedByIDn is the IdNum of the last user who modified the record.',
@@ -80,14 +70,18 @@ CREATE TABLE `ArtGeneralProperties_Tbl` (
 ) ENGINE=InnoDB 
 	AUTO_INCREMENT=0 
 	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
-	COMMENT='Contains one or more descriptions/comments/details/explains of each record of the diccionary.
-It has a defined language, an order when there is more than one description, a type of text format (mimetype), a status and the date of the last update.
-If the element has not been recorded in this table, it means the element has not clarifications.
+	COMMENT='Contains the Articles general properties.
+Before create an Article you must create a general specification of that article.
+  Concept: the articles properties are set by 
+      1.- the general properties
+      2.- the individual properties, this override the general properties. 
+			When an article (record) is created, the relationship is assigned in the ArtGeneralIDn field.
 The key for each record:
   ID		--> is the uniqueidentifier auto generated.
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
-    This table have not unique key because one IDNum can have none, one or more comments.
+  ArtGeneralPropertyIDn		-> the ArtGeneralPropertyIDn must be unique for the BusinessUnit.
+  BusinessUnitIDn 	-> the ArtGeneralPropertyIDn must be unique for the BusinessUnit.
 Common Field/Columns for all tables
   The objective of these are to store critical information for the system and the record history.
     StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
@@ -98,7 +92,7 @@ Common Field/Columns for all tables
     DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
     TableHistory		-->	The TableHistory contain then change history of each column.			
 Tips:
-  The ScopeIDn + BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.';
+  The BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.';
 
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 -- Create the Trigger Before Insert - ArtGeneralProperties_Tbl
