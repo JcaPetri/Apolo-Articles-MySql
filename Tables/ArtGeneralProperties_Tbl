@@ -7,18 +7,20 @@
 -- The articles properties are set:
 
 
-Contains the Articles general propertiesone.
+Contains the Articles general properties.
 Before create an Article you must create a general specification of the articles.
-  Steps:
+  Concept: the articles properties ar set by 
       1.- the general properties
-      2.- the individual properties, this override the general properties
-When an article (record) is created, the relationship is assigned in the ArtGeneralIDn field.
-The primary key: is ArticleGeneralIDn field and must be unique for each business unit.
+      2.- the individual properties, this override the general properties. 
+			When an article (record) is created, the relationship is assigned in the ArtGeneralIDn field.
 The key for each record:
   ID		--> is the uniqueidentifier auto generated.
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
     This table have not unique key because one IDNum can have none, one or more comments.
+The unique Key is the union of:
+  ArtGeneralPropertyIDn		-> the ArtGeneralPropertyIDn must be unique for the BusinessUnit.
+  BusinessUnitIDn 	-> the ArtGeneralPropertyIDn must be unique for the BusinessUnit.
 Common Field/Columns for all tables
   The objective of these are to store critical information for the system and the record history.
     StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
@@ -46,7 +48,6 @@ DROP TABLE IF EXISTS `articlesdb`.`ArtGeneralProperties_Tbl`;
 CREATE TABLE `ArtGeneralProperties_Tbl` (
 	  `IDNum` int NOT NULL AUTO_INCREMENT COMMENT 'The IDNum is the autoincrement number', 
 	  `ID` char(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The ID is the uniqueidentifier auto generated V4', 
-
 		`ArtGeneralPropertyIDn` integer NOT NULL COMMENT 'The ArtGeneralPropertyIDn is the IDNum of the general articles properties. Link with the diccionary table - ArtTDataElement.',
     `BusinessUnitIDn` integer NOT NULL COMMENT 'The BusinessUnitIDn is the business unit that the general articles belong.',
     `ScalesUse` boolean tinyint NOT NULL 'The ScalesUse enables the use of scales for the item.',
@@ -68,13 +69,14 @@ CREATE TABLE `ArtGeneralProperties_Tbl` (
  	  `TzNameIDn` smallint NOT NULL COMMENT 'The IDNum of the TimeZone',				
 	  `TzOffset` smallint NOT NULL COMMENT 'The diferences between ZeroTimeZone and the TimeZone where the record is created or updated.',					
 	  `TableHistory` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT 'The TableHistory contain then change history of each column.',
-	  PRIMARY KEY `ID_AdcPriKey` (`IDNum`) COMMENT 'The sequence ArtGeneralProperties_Tbl_seq generate the nextval',
-	  UNIQUE KEY `ID_AdcUnique` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
-
-    UNIQUE KEY `IDNum_AdcUnique` (`IDNum`) COMMENT 'The IDNum must be unique.',
-	  KEY `ID_AgeIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID alway must be indexed.',
-	  KEY `IDNum_AgeIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
-	  CONSTRAINT `DataElementCommentIDn_AgeRel` FOREIGN KEY (`DataElementCommentIDn`) REFERENCES `articlesdb`.`ArtDataElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
+	  PRIMARY KEY `ID_AgpPriKey` (`IDNum`) COMMENT 'The sequence ArtGeneralProperties_Tbl_seq generate the nextval',
+	  UNIQUE KEY `ID_AgpUnique` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
+    UNIQUE KEY `IDNum_AgpUnique` (`IDNum`) COMMENT 'The IDNum must be unique.',
+		UNIQUE KEY `ArtGenProBusUnit_AgpUnique` (`ArtGeneralPropertyIDn`, `BusinessUnitIDn`) COMMENT 'The ArtGeneralPropertyIDn must be unique for a BusinessUnitIDn.',
+	  KEY `ID_AgpIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID alway must be indexed.',
+	  KEY `IDNum_AgpIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
+		KEY `ArtGenProBusUnit_AgpIdx` (`ArtGeneralPropertyIDn` ASC, `BusinessUnitIDn` ASC) VISIBLE COMMENT 'To optimize the search of one element for a BusinessUnit Tables.',
+	  CONSTRAINT `ArtGeneralPropertyIDn_AgpRel` FOREIGN KEY (`ArtGeneralPropertyIDn`) REFERENCES `articlesdb`.`ArtDataElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB 
 	AUTO_INCREMENT=0 
 	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
@@ -111,8 +113,6 @@ CREATE TRIGGER `ArtGeneralPropertiesBeforeInsert_Trg` BEFORE INSERT ON `ArtGener
 	IF new.ID IS NULL OR new.ID = '' THEN
 		SET new.ID = uuid();				-- Set the UniqueIdentifier Value
 	END IF;
-	SET new.ScopeIDn = (SELECT ScopeIDn FROM `articlesdb`.`ArtDataElements_Tbl` WHERE IDNum = new.DataElementCommentIDn LIMIT 1);
-	SET new.BusinessUnitIDn = (SELECT BusinessUnitIDn FROM `articlesdb`.`ArtDataElements_Tbl` WHERE IDNum = new.DataElementCommentIDn LIMIT 1);
 	SET new.DateCreated = ifnull(new.DateCreated,CURRENT_TIMESTAMP);
 	SET new.DateTimeStamp = ifnull(new.DateTimeStamp,CURRENT_TIMESTAMP);
 END$$
@@ -142,14 +142,18 @@ CREATE TRIGGER `ArtGeneralPropertiesBeforeUpdate_Trg` BEFORE UPDATE ON `ArtGener
 		SET v_TableHistory = '';
 		-- IDNum, this value never changes.
 		-- ID, this value never changes.
-		IF NEW.DataElementCommentIDn <> OLD.DataElementCommentIDn THEN SET v_TableHistory := OLD.DataElementCommentIDn; ELSE SET v_TableHistory := '†'; END IF;
-        IF NEW.LanguageIDn <> OLD.LanguageIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.LanguageIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
-        IF NEW.CommentOrder <> OLD.CommentOrder THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.CommentOrder); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
-        IF NEW.TextFormatIDn <> OLD.TextFormatIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.TextFormatIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
-        IF NEW.Comment <> OLD.Comment THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.Comment); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
-        IF NEW.ScopeIDn <> OLD.ScopeIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.ScopeIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
-        IF NEW.BusinessUnitIDn <> OLD.BusinessUnitIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.BusinessUnitIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
-        IF NEW.StateIDn <> OLD.StateIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.StateIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF NEW.ArtGeneralPropertyIDn <> OLD.ArtGeneralPropertyIDn THEN SET v_TableHistory := OLD.ArtGeneralPropertyIDn; ELSE SET v_TableHistory := '†'; END IF;
+    IF NEW.BusinessUnitIDn <> OLD.BusinessUnitIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.BusinessUnitIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+    IF NEW.ScalesUse <> OLD.ScalesUse THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.ScalesUse); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+    IF NEW.StockEnable <> OLD.StockEnable THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.StockEnable); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+    IF NEW.PartitionsUse <> OLD.PartitionsUse THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.PartitionsUse); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+    IF NEW.PartitionsAutomaticNumbering <> OLD.PartitionsAutomaticNumbering THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.PartitionsAutomaticNumbering); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+    IF NEW.PartitionsAutoDownloadByAge <> OLD.PartitionsAutoDownloadByAge THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.PartitionsAutoDownloadByAge); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+    IF NEW.SeriesUse <> OLD.SeriesUse THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.SeriesUse); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+    IF NEW.SeriesUseMandatory <> OLD.SeriesUseMandatory THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.SeriesUseMandatory); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+    IF NEW.SeriesUseReentry <> OLD.SeriesUseReentry THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.SeriesUseReentry); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+    IF NEW.SeriesUseValidate <> OLD.SeriesUseValidate THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.SeriesUseValidate); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF NEW.StateIDn <> OLD.StateIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.StateIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.CreatedByIDn <> OLD.CreatedByIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.CreatedByIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.LastModifiedByIDn <> OLD.LastModifiedByIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.LastModifiedByIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.OwnerIDn <> OLD.OwnerIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.OwnerIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
