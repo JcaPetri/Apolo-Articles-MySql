@@ -10,7 +10,7 @@ Name: system / articles / persons / users
 	System Microservice contains the system structure of all the software. In this module you need to create all the databases and java classes, enums, interfaces, entities, etc.
 	The main tables of this module will be in the other databases such as mirrors. 
  	These mirror tables will be updated via Kafka topics, but for the only record that are used by this Articles Microservices.
-	With this mechanism each microservice becames independent of the others. Example: MirSysCompanies, MirSysBusinessUnits, etc.
+	With this mechanism each microservice becames independent of the others. Example: SysCompanies_Mir, SysBusinessUnits_Mir, etc.
 	One important thing, is you make a mirror only of the records that need in the other microservice, not all the records that exists in the System Microservice.
 	The are three types of tables.
 		Tli is the list table, in which only enable the IDNum for one Microservice and BusinessUnit. This kind of table do not have any relation with others.
@@ -23,6 +23,7 @@ Name: system / articles / persons / users
 		ID		--> is the uniqueidentifier auto generated.
 		IDNum	--> is the autoincrement number auto generated.
 
+	--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	The Apolo Software Structure are defined by:
  		Frontend
    			This is the user interface, which call the backend to get the information and business logic.
@@ -30,12 +31,12 @@ Name: system / articles / persons / users
 				Clients -> call the PersonsMicroservices, which has all the information about the clients/supplier/both.
 						The parameters request are: 
 									Endpoint: this is the  address of the Microservice.
-									Group: this can be Clients types, BusinessUnits, etc.
+									Group: this can be Clients types, BusinessUnits, etc. This can be an array of Groups.
 									Others parameters defined by the microservice, needed to comply the request.
-				Articles -> call the ArticlesMicroservices, which has all information about the articles and theirs relations.
+				Articles -> call the ArticlesMicroservices, which has all information about the articles (things and services) and theirs relations.
 						The parameters request are: 
 								Endpoint: this is the  address of the Microservice.
-								Group: this can be articles types, BusinessUnits, etc.
+								Group: this can be articles types, BusinessUnits, etc. This can be an array of Groups.
 								Others parameters defined by the microservice, needed to comply the request.
 				Taxes -> call the TaxesMicrosevices, which has all infomation about the taxes subject.
 						The parameters request are: 
@@ -47,7 +48,7 @@ Name: system / articles / persons / users
 		Backend
    			This is the logic and where the permanent information are stored.
 	  		Each Microservice specializes in a specific task. 
-	 		Next are the Apolo Microcervices Structure are defined by:
+	 		Next, the Apolo Microcervices Structure are defined by:
 		 		SystemsMicroSs
 		   			This microservices has the information about:
 						The main dictionary of the software.
@@ -59,6 +60,7 @@ Name: system / articles / persons / users
 			  			Java project called ApoloSystemsMicroSs, this a restfull webservice java project.
 			  			MySql database called SystemsDB, this contain the permanent information of all the System software.
 			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
+				 						
 				UsersMicroSs
 		   			This microservices has the information about:
 						The users, groups of users.
@@ -68,22 +70,29 @@ Name: system / articles / persons / users
 			  			MySql database called UsersDB, this contain the permanent information of all the Users.
 			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
 			 	PersonsMicroSs
-		   			This microservices has the information about:
-						The persons and all information about.
-	  					The traders and the relations with the persons.
-						The relationship between Business and theirs customers or suppliers, are throw the traders. Are not direct with the real person.
-	  					The reason is that the Customer can change the cuit, the business name, or want to charge the bill to another cuit. But the Customer is the same.
-						If the trader has only one persons relation, the software automaticaly make the selection.
-	  					If the trade has two or more persons relations, the user must to select to wich person want to charge the invoice.
+		   			This microservices has the information about the persons (legal and real).
+	  				Concept: Traders are the real link between the companies and theirs Clientes or Suppliers.
+			 							 The reason is that the Customer can change the cuit, the business name, or want to charge the bill to another cuit. But the Customer/Supplier is the same.
+										 To fix that, the relationship between Business and theirs customers or suppliers, are throw the traders. Are not direct with the real person.
+					 					 Importan: If the trader has only one persons relation, the software automaticaly make the selection.
+	  													 If the trade has two or more persons relations, the user must select, to wich person want to charge the invoice.				  
 	  				The microservices structure are defined by:
-			  			Java project called ApoloUsersMicroSs, this a restfull webservice java project.
-			  			MySql database called UsersDB, this contain the permanent information of all the Users.
+			  			Java project called ApoloPersonsMicroSs, this a restfull webservice java project.
+			  			MySql database called PersonssDB, this contain the permanent information of all the Persons.
+			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
+  				ArticlesMicroSs
+		   			This microservices has the information about Articles (things or services):
+						The microservice can specialize:
+									1.- In branch of articles (Library, Car Supplier, Gift, etc). These articles are created by the System, and are common to all business units.
+				 					2.- In the articles of one company (can have the mix of things and services that sell). These articles are created by each users.
+									3.- In a mix of 1 and 2. You can have some common and custom articles.
+				 				Concept: The common articles are those that are unique ID in the world, they have standar barcode (EAN) and description.
+				 								 The custom articles are non standar, and the company can change them without advise.
+	  				The microservices structure are defined by:
+			  			Java project called ApoloArticlesMicroSs, this a restfull webservice java project.
+			  			MySql database called ArticlesDB, this contain the permanent information of all articles.
 			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
 
-	 
-  				ArticlesMicroSs
-			 
-  
 ========================================================================================================================================================================================
 Structure are as follows:
 	Used to create the main elements
@@ -93,17 +102,22 @@ Structure are as follows:
 	Used to create multiples tables
 		ArtRootElements_Tli	--> This is a List Table that contains the other data element of the system. Enable the IDNum element to a Microservice.
     Used to create the general properties of the articles. Before create an article, it is necesary create an ArtGeneralProperty.
-        ArtGeneral_Tbl    --> Contains the general information of the articles. 
-        ArtGeneralProperties_Tbl	--> Contains the properties of each general information.
-        ArtGeneralPropertyOptionalFields_Tbl	--> Contains the optional fields/columns of the general property.
+      ArtGeneral_Tbl    --> Contains the general information of the articles. 
+      ArtGeneralProperties_Tbl	--> Contains the properties of each general information.
+      ArtGeneralPropertyOptionalFields_Tbl	--> Contains the optional fields/columns of the general property.
     Used to create the articles
-		Articles_Tbl	--> Contains the articles informations. This table has the article for each Microservice. 
-        ArticleOptionalFields_Tbl  --> Contains the optional fields/columns of the articles informations.
-        ArtRelations_Tbl  --> Contains the relation between articles. It could be substitutes, complementary, etc.
+			Articles_Tbl	--> Contains the articles informations. This table has the article for each Microservice. 
+      ArticleOptionalFields_Tbl  --> Contains the optional fields/columns of the articles informations.
+      ArtRelations_Tbl  --> Contains the relation between articles. It could be substitutes, complementary, etc.
     Used to create the Mirror Tables
-		ArtSysBaseElements_Mir	--> Contain a mirror of the ArtDataElements_Tbl information.
-        ArtSysCompanies_Mir  --> Contain a mirror of the SysCompanies_Tbl information.
-        ArtSysMicroservices_Mir  --> Contain a mirror of the SysMicroservices_Tbl information.
+			Concept: When some value changed in the main table (SysBaseElements_Tbl), a Kaftka producer send this changed to a queue name SysBaseElements+BusinessUnitIDn+ScopeIDn.
+	 						 After the item microservices take this change from the queue, the update procedure is triggered, only for the values that are in this microservice.
+			ArtSysBaseElements_Mir	--> Contains the MIRROR of the diccionary of all system elements of the Microservice.
+			ArtSysBaseElementLanguages_Tbl	--> Contains the MIRROR of the meaning of the diccionary in other languages.
+			ArtSysBaseElementComments_Tbl	--> Contains the MIRROR of the comments/details/explains of each record of the diccionary.
+			ArtSysRootElements_Tli	--> This is the MIRROR of the List Table that contains the other element of the system. Enable the IDNum element to a Microservice and BusinessUnit.
+      ArtSysCompanies_Mir  --> Contain the MIRROR of the SysCompanies_Tbl information.
+
 
 ========================================================================================================================================================================================
 Detailed explanation of each table.
