@@ -1,0 +1,154 @@
+-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+-- Create the ArtGeneralPropertyOptionalFields_Tbl table
+/*Contains the Articles General Properties Optional Fields
+This optional property is used to set up a property for a specific article. The others articles do not have this property.
+In each record you specify the property and the value it assumes for each item.
+The key for each record:
+  ID		--> is the uniqueidentifier auto generated.
+  IDNum	--> is the autoincrement number auto generated.
+The unique Key is the union of:
+  TableFieldIDn    -> the table field Link with the System database - SysTableFields.
+  ArtGeneralPropertyIDn		-> the article general property, from the ArtGeneralProperties_Tbl.
+  GroupIDn 	-> the article GroupIDn.
+  (The table field can be unique for a General Property)
+Kafka/RabbitMQ:
+  The GroupIDn + TableIDn combination can be the topic.  
+Common Field/Columns for all tables
+  The objective of these are to store critical information for the system and the record history.
+    StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
+    CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
+    LastModifiedByIDn	--> The LastModifiedByIDn is the IDNum of the last user who modified the record.
+    OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
+    DateCreated			--> The DateCreated is the record creation datetime UTC.
+    DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
+    TableHistory		-->	The TableHistory contain then change history of each column.*/
+
+-- #########################################################################################################################################################################################
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Delete the table ArtGeneralPropertyOptionalFields_Tbl if Exits, but first you must to altere the tables that have a referenced foreign key
+USE articlesdb;
+-- First you must to delete the Foreing Key Constraint;
+-- The referenced ArtGeneralPropertyOptionalFields_Tbl Tables:
+-- ALTER TABLE `articlesdb`.`SysMicroservices_Tbl`  DROP FOREIGN KEY `MicroserviceIDn_Rel`;
+
+-- After deleted the referenced, you can delete the table
+DROP TABLE IF EXISTS `articlesdb`.`ArtGeneralPropertyOptionalFields_Tbl`;
+
+CREATE TABLE `ArtGeneralPropertyOptionalFields_Tbl` (
+	  `IDNum` int NOT NULL AUTO_INCREMENT COMMENT 'The IDNum is the autoincrement number', 
+	  `ID` char(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The ID is the uniqueidentifier auto generated V4', 
+    `TableFieldIDn` integer NOT NULL COMMENT 'The TableFieldIDn is the IDNum of the field property. Link with the System database - SysTableFields.',
+    `ArtGeneralPropertyIDn` integer NOT NULL COMMENT 'The ArtGeneralPropertyIDn is the IDNum of the articles general properties. Link with the ArtGeneralProperties_Tbl table.',
+    `GroupIDn` integer NOT NULL COMMENT 'The GroupIDn is the Group that the general articles belong.',
+    `FieldValueTypeIDn` integer NOT NULL COMMENT 'TThe FieldValueTypeIDn is the IDNum of the type property. Its come from the SysBaseElement.',
+    `FieldValue` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The FieldValue is a numeric/text/etc value of the property, this value is not standar and can´t be multilanguage. If the value is an IDNumType, the meaning is in the ArticleOptionalFields_Tbl.',
+    `StateIDn` smallint NOT NULL COMMENT 'The StatedIDn define if the record is enable or not.',
+	  `CreatedByIDn` int NOT NULL COMMENT 'The CreatedByIDn is the IdNum of the user who created the record.',
+	  `LastModifiedByIDn` int NOT NULL COMMENT 'The LastModifiedByIDn is the IdNum of the last user who modified the record.',
+	  `OwnerIDn` int NOT NULL COMMENT 'The OwnerIDn is the IdNum of the record owner.',
+	  `DateCreated` datetime NOT NULL COMMENT 'The DateCreated is the record creation date with UTC.',
+	  `DateTimeStamp` timestamp NOT NULL COMMENT 'The DateTimeStamp is the date of the last modification of the record with UTC.',
+ 	  `TzNameIDn` smallint NOT NULL COMMENT 'The IDNum of the TimeZone',				
+	  `TzOffset` smallint NOT NULL COMMENT 'The diferences between ZeroTimeZone and the TimeZone where the record is created or updated.',					
+	  `TableHistory` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT 'The TableHistory contain then change history of each column.',
+	  PRIMARY KEY `ID_AgpoPriKey` (`IDNum`) COMMENT 'The sequence ArtGeneralPropertyOptionalFields_Tbl_seq generate the nextval',
+	  UNIQUE KEY `ID_AgpoUnique` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
+    UNIQUE KEY `IDNum_AgpoUnique` (`IDNum`) COMMENT 'The IDNum must be unique.',
+		UNIQUE KEY `ArtGenProGroup_AgpoUnique` (`TableFieldIDn`, `ArtGeneralPropertyIDn`, `GroupIDn`) COMMENT 'The ArtGeneralPropertyIDn must be unique for a TableField and GroupIDn.',
+	  KEY `ID_AgpoIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID alway must be indexed.',
+	  KEY `IDNum_AgpoIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
+		KEY `ArtGenProGroup_AgpoIdx` (`ArtGeneralPropertyIDn` ASC, `GroupIDn` ASC) VISIBLE COMMENT 'To optimize the search of one element for a Group Tables.',
+    CONSTRAINT `TableFieldIDn_AgpoRel` FOREIGN KEY (`TableFieldIDn`) REFERENCES `articlesdb`.`ArtSysBaseElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
+	  CONSTRAINT `ArtGeneralPropertyIDn_AgpoRel` FOREIGN KEY (`ArtGeneralPropertyIDn`) REFERENCES `articlesdb`.`ArtGeneralProperties_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB 
+	AUTO_INCREMENT=0 
+	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
+	COMMENT='Contains the Articles General Properties Optional Fields
+This optional property is used to set up a property for a specific article. The others articles do not have this property.
+In each record you specify the property and the value it assumes for each item.
+The key for each record:
+  ID		--> is the uniqueidentifier auto generated.
+  IDNum	--> is the autoincrement number auto generated.
+The unique Key is the union of:
+  TableFieldIDn    -> the table field Link with the System database - SysTableFields.
+  ArtGeneralPropertyIDn		-> the article general property, from the ArtGeneralProperties_Tbl.
+  GroupIDn 	-> the article GroupIDn.
+  (The table field can be unique for a General Property)
+Kafka/RabbitMQ:
+  The GroupIDn + TableIDn combination can be the topic.  
+Common Field/Columns for all tables
+  The objective of these are to store critical information for the system and the record history.
+    StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
+    CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
+    LastModifiedByIDn	--> The LastModifiedByIDn is the IDNum of the last user who modified the record.
+    OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
+    DateCreated			--> The DateCreated is the record creation datetime UTC.
+    DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
+    TableHistory		-->	The TableHistory contain then change history of each column.';
+
+-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+-- Create the Trigger Before Insert - ArtGeneralPropertyOptionalFields_Tbl
+USE articlesdb;
+DROP TRIGGER IF EXISTS `articlesdb`.`ArtGeneralPropertyOptionalFieldsBeforeInsert_Trg`;
+DELIMITER $$
+USE `articlesdb`$$
+-- DEFINER=`root`@`localhost` -- When create Trigger in localhost, must add Definer between CREATE and TRIGGER key word.
+CREATE TRIGGER `ArtGeneralPropertyOptionalFieldsBeforeInsert_Trg` BEFORE INSERT ON `ArtGeneralPropertyOptionalFields_Tbl` FOR EACH ROW BEGIN
+	-- In the case, which the request do not give this value, MySql created it.
+	-- Set the ID uniqueidentifier, IDCode, DateCreated and DateTimeStamp
+	IF new.ID IS NULL OR new.ID = '' THEN
+		SET new.ID = uuid();				-- Set the UniqueIdentifier Value
+	END IF;
+	SET new.DateCreated = ifnull(new.DateCreated,CURRENT_TIMESTAMP);
+	SET new.DateTimeStamp = ifnull(new.DateTimeStamp,CURRENT_TIMESTAMP);
+END$$
+DELIMITER ;
+
+-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+-- Create the Trigger Before Update - ArtGeneralPropertyOptionalFields_Tbl
+-- en caso que desde Java no pasen la informacion de estos campos,
+-- establece el valor del DateTimeStamp, TableHistory creando el historico de cada registro
+USE articlesdb;
+DROP TRIGGER IF EXISTS `articlesdb`.`ArtGeneralPropertyOptionalFieldsBeforeUpdate_Trg`;
+DELIMITER $$
+USE `articlesdb`$$
+-- DEFINER=`root`@`localhost` -- When create Trigger in localhost, must add Definer between CREATE and TRIGGER key word.
+CREATE TRIGGER `ArtGeneralPropertyOptionalFieldsBeforeUpdate_Trg` BEFORE UPDATE ON `ArtGeneralPropertyOptionalFields_Tbl` FOR EACH ROW BEGIN
+	DECLARE v_TableHistory text;
+	DECLARE v_TableHistoryOld text;
+	SET new.DateTimeStamp = ifnull(new.DateTimeStamp,CURRENT_TIMESTAMP);
+    IF new.TableHistory = 'SetNull' THEN
+		SET new.TableHistory = null;
+    ELSEIF new.TableHistory = 'SetOff' THEN
+		SET new.TableHistory = old.TableHistory;
+    ELSE
+		-- When the (New) value is equal the (Old), you set an empty update, because the value is steal in the record.
+		-- When the (New) value is diferent with the (Old), you set the old value in the update. The new value is in the record.
+		SET v_TableHistoryOld := old.TableHistory;
+		SET v_TableHistory = '';
+		-- IDNum, this value never changes.
+		-- ID, this value never changes.
+		IF NEW.TableFieldIDn <> OLD.TableFieldIDn THEN SET v_TableHistory := OLD.TableFieldIDn; ELSE SET v_TableHistory := '†'; END IF;
+    IF NEW.ArtGeneralPropertyIDn <> OLD.ArtGeneralPropertyIDn THEN SET v_TableHistory := OLD.ArtGeneralPropertyIDn; ELSE SET v_TableHistory := '†'; END IF;
+    IF NEW.GroupIDn <> OLD.GroupIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.GroupIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+    IF NEW.FieldValueTypeIDn <> OLD.FieldValueTypeIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.FieldValueTypeIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+    IF NEW.FieldValue <> OLD.FieldValue THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.FieldValue); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF NEW.StateIDn <> OLD.StateIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.StateIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF NEW.CreatedByIDn <> OLD.CreatedByIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.CreatedByIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF NEW.LastModifiedByIDn <> OLD.LastModifiedByIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.LastModifiedByIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF NEW.OwnerIDn <> OLD.OwnerIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.OwnerIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF v_TableHistoryOld IS NULL THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',NEW.DateCreated); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF NEW.DateTimeStamp <> OLD.DateTimeStamp THEN SET v_TableHistory := concat(v_TableHistory,'†',OLD.DateTimeStamp); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF NEW.TzNameIDn <> OLD.TzNameIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.TzNameIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF NEW.TzOffset <> OLD.TzOffset THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.TzOffset); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF v_TableHistoryOld IS NULL THEN
+			SET NEW.TableHistory := v_TableHistory;
+		ELSE
+			SET NEW.TableHistory := concat(v_TableHistory,'‡',v_TableHistory);
+		END IF;
+	END IF;
+END$$
+DELIMITER ;
+
+-- Lista los datos de la tabla
+SELECT * FROM `articlesdb`.`ArtGeneralPropertyOptionalFields_Tbl`;
