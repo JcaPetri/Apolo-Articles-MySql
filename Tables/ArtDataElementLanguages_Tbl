@@ -2,7 +2,7 @@
 -- Create the ArtDataElementLanguages_Tbl table
 /*Contains the meaning of the diccionary in another languages than the default.
 In this table you have to comply with the same rules as the ArtDataElements_Tbl.
-Important Clarification: the values IdNum, ScopeIDn, CompanyIDn = are always equal to the ApplTDataElement table. 
+Important Clarification: the values IdNum, ScopeIDn, GroupIDn = are always equal to the ApplTDataElement table. 
                          These columns are put in this table only to ensure integrity and that there are no duplicates.
 The key for each record:
     ID		--> is the uniqueidentifier auto generated.
@@ -14,7 +14,9 @@ The unique Key is the union of:
     LanguageIDn 	-> the LanguagesIDn must be diferent from the default language.
     -- This two values are set by the system automaticaly, and are the same as the SysBaseElement_Tbl. For do that use the IdNum.
     ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table.
-    BusinessUnitIDn	-> the Name must be unique for the BusinessUnit.
+    GroupIDn			-> the Name must be unique for the Group.
+Kafka/RabbitMQ:
+  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.
 Common Field/Columns for all tables
     The objective of these are to store critical information for the system and the record history.
         StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
@@ -23,10 +25,7 @@ Common Field/Columns for all tables
         OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
         DateCreated			--> The DateCreated is the record creation datetime UTC.
         DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
-        TableHistory		-->	The TableHistory contain then change history of each column.
-Tips:
-    The ScopeIDn + BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.
-*/
+        TableHistory		-->	The TableHistory contain then change history of each column.*/
 
 -- #########################################################################################################################################################################################
 -- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -43,10 +42,10 @@ CREATE TABLE `ArtDataElementLanguages_Tbl` (
 	  `IDNum` int NOT NULL AUTO_INCREMENT COMMENT 'The IDNum is the autoincrement number', 
 	  `ID` char(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The ID is the uniqueidentifier auto generated V4', 
 	  `DataElementLanguageIDn` int NOT NULL COMMENT 'The DataElementLanguageIDn is the IDNum of the IDName from the ArtDataElement, which has the IDName in other languages than default.',
-      `IDName` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The IDName is the user-readable code for the selected language.',
+     `IDName` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The IDName is the user-readable code for the selected language.',
 	  `IDNameStructureIDn` int NOT NULL COMMENT 'The IDNameStructureIDn is the IDNum of the IDName structure, if the IDName is multivalued, here it refers to the structure.',
 	  `ScopeIDn` int NOT NULL COMMENT 'The ScopeIDn is the IdNum of the Scope, the Name must be unique for the scope of application, usually a Table. It inherited from ArtDataElements_Tbl.',
-	  `BusinessUnitIDn` int NOT NULL COMMENT 'The BusinessUnitIDn is the IdNum of the BusinessUnit to which the IDName is assigned. It inherited from ArtDataElements_Tbl.',
+	  `GroupIDn` int NOT NULL COMMENT 'The GroupIDn is the IdNum of the Group to which the IDName is assigned. It inherited from ArtDataElements_Tbl.',
 	  `LanguageIDn` int NOT NULL COMMENT 'The LanguageIDn is the IdNum of the language in which the Name is defined. It must be different from the default.',
 	  `StateIDn` smallint NOT NULL COMMENT 'The StatedIDn define if the record is enable or not.',
 	  `CreatedByIDn` int NOT NULL COMMENT 'The CreatedByIDn is the IdNum of the user who created the record.',
@@ -60,7 +59,7 @@ CREATE TABLE `ArtDataElementLanguages_Tbl` (
 	  PRIMARY KEY `ID_AdlPriKey` (`IDNum`) COMMENT 'The sequence ArtDataElementLanguages_Tbl_seq generate the nextval',
 	  UNIQUE KEY `ID_AdUnique` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
 	  UNIQUE KEY `IDNum_AdUnique` (`IDNum`) COMMENT 'The IDNum must be unique.',
-	  UNIQUE KEY `IDNameScopeBusUnitLang_AdUnique` (`IDName`,`ScopeIDn`,`BusinessUnitIDn`,`LanguageIDn`) COMMENT 'A name can be unique for a ScopeId, for a BusinessUnitId, and LanguageId.',
+	  UNIQUE KEY `IDNameScopeGroupLang_AdUnique` (`IDName`,`ScopeIDn`,`GroupIDn`,`LanguageIDn`) COMMENT 'A name can be unique for a ScopeId, for a GroupId, and LanguageId.',
 	  KEY `ID_AdIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID alway must be indexed.',
 	  KEY `IDNum_AdIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
 	  CONSTRAINT `DataElementLanguageIDn_AdRel` FOREIGN KEY (`DataElementLanguageIDn`) REFERENCES `articlesdb`.`ArtDataElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -69,30 +68,30 @@ CREATE TABLE `ArtDataElementLanguages_Tbl` (
 	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
 	COMMENT='Contains the meaning of the diccionary in another languages than the default.
 In this table you have to comply with the same rules as the ArtDataElements_Tbl.
-Important Clarification: the values IdNum, ScopeIDn, CompanyIDn = are always equal to the ApplTDataElement table. 
-                     These columns are put in this table only to ensure integrity and that there are no duplicates.
+Important Clarification: the values IdNum, ScopeIDn, GroupIDn = are always equal to the ApplTDataElement table. 
+                         These columns are put in this table only to ensure integrity and that there are no duplicates.
 The key for each record:
-ID		--> is the uniqueidentifier auto generated.
-IDNum	--> is the autoincrement number auto generated.
+    ID		--> is the uniqueidentifier auto generated.
+    IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
--- This three values are defined by the user.
-BaseElementLanguageIDn	--> the IdNum of the element that has another languages meaning. It is created in the ArtDataElements_Tbl.
-NameID     		-> is the readable code by the user.
-LanguageIDn 	-> the LanguagesIDn must be diferent from the default language.
--- This two values are set by the system automaticaly, and are the same as the SysBaseElement_Tbl. For do that use the IdNum.
-ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table.
-BusinessUnitIDn	-> the Name must be unique for the BusinessUnit.
+    -- This three values are defined by the user.
+    BaseElementLanguageIDn	--> the IdNum of the element that has another languages meaning. It is created in the ArtDataElements_Tbl.
+    NameID     		-> is the readable code by the user.
+    LanguageIDn 	-> the LanguagesIDn must be diferent from the default language.
+    -- This two values are set by the system automaticaly, and are the same as the SysBaseElement_Tbl. For do that use the IdNum.
+    ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table.
+    GroupIDn			-> the Name must be unique for the Group.
+Kafka/RabbitMQ:
+  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.
 Common Field/Columns for all tables
-The objective of these are to store critical information for the system and the record history.
-    StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
-    CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
-    LastModifiedByIDn	--> The LastModifiedByIDn is the IDNum of the last user who modified the record.
-    OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
-    DateCreated			--> The DateCreated is the record creation datetime UTC.
-    DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
-    TableHistory		-->	The TableHistory contain then change history of each column.
-Tips:
-The ScopeIDn + BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.';
+    The objective of these are to store critical information for the system and the record history.
+        StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
+        CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
+        LastModifiedByIDn	--> The LastModifiedByIDn is the IDNum of the last user who modified the record.
+        OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
+        DateCreated			--> The DateCreated is the record creation datetime UTC.
+        DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
+        TableHistory		-->	The TableHistory contain then change history of each column.';
 
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 -- Create the Trigger Before Insert - ArtDataElementLanguages_Tbl
@@ -108,7 +107,7 @@ CREATE TRIGGER `ArtDataElementLanguagesBeforeInsert_Trg` BEFORE INSERT ON `ArtDa
 		SET new.ID = uuid();				-- Set the UniqueIdentifier Value
 	END IF;
 	SET new.ScopeIDn = (SELECT ScopeIDn FROM `articlesdb`.`ArtDataElements_Tbl` WHERE IDNum = new.DataElementLanguageIDn LIMIT 1);
-	SET new.BusinessUnitIDn = (SELECT BusinessUnitIDn FROM `articlesdb`.`ArtDataElements_Tbl` WHERE IDNum = new.DataElementLanguageIDn LIMIT 1);
+	SET new.GroupIDn = (SELECT GroupIDn FROM `articlesdb`.`ArtDataElements_Tbl` WHERE IDNum = new.DataElementLanguageIDn LIMIT 1);
 	SET new.DateCreated = ifnull(new.DateCreated,CURRENT_TIMESTAMP);
 	SET new.DateTimeStamp = ifnull(new.DateTimeStamp,CURRENT_TIMESTAMP);
 END$$
@@ -142,7 +141,7 @@ CREATE TRIGGER `ArtDataElementLanguagesBeforeUpdate_Trg` BEFORE UPDATE ON `ArtDa
 		IF NEW.IDName <> OLD.IDName THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.IDName); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.IDNameStructureIDn <> OLD.IDNameStructureIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.IDNameStructureIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.ScopeIDn <> OLD.ScopeIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.ScopeIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
-		IF NEW.BusinessUnitIDn <> OLD.BusinessUnitIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.BusinessUnitIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF NEW.GroupIDn <> OLD.GroupIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.GroupIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.LanguageIDn <> OLD.LanguageIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.LanguageIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.StateIDn <> OLD.StateIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.StateIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.CreatedByIDn <> OLD.CreatedByIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.CreatedByIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
