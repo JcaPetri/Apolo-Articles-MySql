@@ -1,26 +1,29 @@
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 -- Create the ArtDataElements_Tbl table
 /*Contains the diccionary of all articles data elements of the Microservice.
-The rest of the tables only have the IDNum. To determine what a code means, you should consult this table.
-In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
-To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
+The rest of the tables only have the IDNum. To determine what a code means, you must consult this table.
+In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, Group and Language.
+To respect all the rules the unique value must be the combination of: Name/Scope/Group/Language.
+Concept: throw the group column, you can create diferents types of articles. 
+				 An example could be, a Group, or a type of articles (CarSupplier / Library / Gift / Medicines).
+				 So when you call this microservice, you can get the number of groups that you need.
 The key for each record:
   ID		--> is the uniqueidentifier auto generated.
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
   IDName     		-> is the readable code by the user.
-  ScopeIDn     		-> the Name must be unique for the application Scope, usually a Table.
-  BusinessUnitIDn 	-> the Name must be unique for the BusinessUnit.
-  LanguageIDn 		-> the Name must be unique for Language. This dictionary has a default language defined.
+  ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table.
+  GroupIDn 			-> the Name must be unique for the Group.
+  LanguageIDn 	-> the Name must be unique for Language. This dictionary has a default language defined.
 Important: when you create the element/object in this table, this element does not exits for the software. This table is like a dictionary.
-      Only exist when you create the code in the specific table.
-  Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
+      		 Only exist when you create the code in the specific table.
+  				 Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
 Modification Rules:
   You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
   Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
-  If you want to change the code and it is in many places, the system must generate another code for the new value
-  To change this value, it must be done by the administrator. 
-  It is best to never change it.
+  				 If you want to change the code and it is in many places, the system must generate another code for the new value
+  				 To change this value, it must be done by the administrator. 
+  				 IT IS BEST TO NEVER CHANGE IT.
 Common Field/Columns for all tables
   The objective of these are to store critical information for the system and the record history.
     StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
@@ -30,15 +33,15 @@ Common Field/Columns for all tables
     DateCreated			--> The DateCreated is the record creation datetime UTC.
     DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
     TableHistory		-->	The TableHistory contain then change history of each column.
+Kafka/RabbitMQ:
+  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.  
 Comments:
-  In each microservice and database, you have one DataElements_Tbl. It work as a specific dictionary for it.
+	In each microservice and database, you have one DataElements_Tbl. It work as a specific dictionary for it.
   Example:
     In the System Microservice you have the meaning of all databases tables, columns, stored procedures, views, java entities, classes, etc.
     In the Person Microservice you have the meaning of all person (legal or natural) whom can interact with the system.
     In the Users Microservice you have the meaning of all person who can enter in the system to work with. 
     In the Articles Microservice you have the meaning of all the articles that the campany can handle, to sell, buy, or have to use. 
-Tips:
-  The ScopeIDn + BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.
 */
 
 -- #########################################################################################################################################################################################
@@ -47,17 +50,9 @@ Tips:
 USE articlesdb;
 -- First you must to delete the Foreing Key Constraint;
 -- The referenced ArtDataElements_Tbl Tables:
-ALTER TABLE `articlesdb`.`SysBaseElementLanguages_Tbl`  DROP FOREIGN KEY `DataElementLanguageIDn_Rel`;
-ALTER TABLE `articlesdb`.`SysBaseElementComments_Tbl`  DROP FOREIGN KEY `CommentIDn_Rel`;
-ALTER TABLE `articlesdb`.`SysMicroservices_Tbl`  DROP FOREIGN KEY `MicroserviceIDn_Rel`;
-ALTER TABLE `articlesdb`.`SysCompanies_Tbl`  DROP FOREIGN KEY `CompanyIDn_Rel`;
-ALTER TABLE `articlesdb`.`SysRootElements_Tbl`  DROP FOREIGN KEY `RootElementIDn_Rel`;
-ALTER TABLE `articlesdb`.`SysEntities_Tbl`  DROP FOREIGN KEY `EntityIDn_Rel`; 
-ALTER TABLE `articlesdb`.`SysEntityFields_Tbl`  DROP FOREIGN KEY `FieldIDn_Rel`;  
-ALTER TABLE `articlesdb`.`SysEntityStructures_Tbl`  DROP FOREIGN KEY `FieldIDn_Rel`;  
-ALTER TABLE `articlesdb`.`SysEntityStructures_Tbl`  DROP FOREIGN KEY `EntityIDn_Rel`;  
-ALTER TABLE `articlesdb`.`SysEntityStructureFieldProperties_Tbl`  DROP FOREIGN KEY `FieldPropertyIDn_Rel`;  
-ALTER TABLE `articlesdb`.`SysEntityStructureFieldDefaultValues_Tbl`  DROP FOREIGN KEY `DefaultVersionIDn_Rel`;  
+ALTER TABLE `articlesdb`.`ArtDataElementLanguages_Tbl` DROP FOREIGN KEY `DataElementLanguageIDn_AdRel`;
+ALTER TABLE `articlesdb`.`ArtDataElementComments_Tbl` DROP FOREIGN KEY `DataElementCommentIDn_AdcRel`;
+
 
 USE articlesdb;
 -- After deleted the referenced, you can delete the table
@@ -69,7 +64,7 @@ CREATE TABLE `ArtDataElements_Tbl` (
 	  `IDName` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The IDName is the user-readable code for the selected language.',
 	  `IDNameStructureIDn` int NOT NULL COMMENT 'The IDNameStructureIDn is the IDNum of the IDName structure, if the IDName is multivalued, here it refers to the structure.',
 	  `ScopeIDn` int NOT NULL COMMENT 'The ScopeIDn is the IdNum of the Scope, the Name must be unique for the scope of application, usually a Table',
-	  `BusinessUnitIDn` int NOT NULL COMMENT 'The BusinessUnitIDn is the IdNum of the BusinessUnit to which the IDName is assigned',
+	  `GroupIDn` int NOT NULL COMMENT 'The GroupIDn is the IdNum of the Group to which the IDName is assigned',
 	  `LanguageIDn` int NOT NULL COMMENT 'The LanguageIDn is the IdNum of the language in which the Name is defined',
 	  `IDCode` int NOT NULL COMMENT 'The IDCode is the unique code of the record for a scope and company.',
 	  `DefinitionIDn` int NOT NULL COMMENT 'The DefinitionIDn is the IdNum of the element definition type.',
@@ -87,36 +82,41 @@ CREATE TABLE `ArtDataElements_Tbl` (
 	  PRIMARY KEY `ID_AdePriKey` (`IDNum`) COMMENT 'The sequence ArtDataElements_Tbl_seq generate the nextval',
 	  UNIQUE KEY `ID_AdeUnique` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
 	  UNIQUE KEY `IDNum_AdeUnique` (`IDNum`) COMMENT 'The IDNum must be unique.',
-	  UNIQUE KEY `IDNameScopeBusUnitLang_AdeUnique` (`IDName`,`ScopeIDn`,`BusinessUnitIDn`,`LanguageIDn`) COMMENT 'A name can be unique for a ScopeId, for a BusinessUnitId, and LanguageId.',
-	  UNIQUE KEY `IDCodeIDScopeIDBusUnit_AdeUnique` (`BusinessUnitIDn`,`ScopeIDn`, `IDCode`) COMMENT 'A IDCode must be unique for a ScopeId and for a BusinessUnitId.',
+	  UNIQUE KEY `IDNameScopeGroupLang_AdeUnique` (`IDName`,`ScopeIDn`,`GroupIDn`,`LanguageIDn`) COMMENT 'A name can be unique for a ScopeId, for a GroupId, and LanguageId.',
+	  UNIQUE KEY `IDCodeScopeGroup_AdeUnique` (`GroupIDn`,`ScopeIDn`, `IDCode`) COMMENT 'A IDCode must be unique for a ScopeId and for a GroupId.',
 	  KEY `ID_AdeIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID alway must be indexed.',
 	  KEY `IDNum_AdeIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
 	  KEY `IDCode_AdeIdx` (`IDCode`) /*!80000 INVISIBLE */ COMMENT 'The IDCode must be indexed, because it works like IDNum.',
-	  KEY `IDBusUnitScop_AdeIdx` (`IDIsUsed` ASC, `BusinessUnitIDn` ASC, `ScopeIDn`ASC) COMMENT 'To optimize the search of Business Tables.'
+	  KEY `IDIsUseGroupScope_AdeIdx` (`IDIsUsed` ASC, `GroupIDn` ASC, `ScopeIDn`ASC) COMMENT 'To optimize the search of Business Tables.'
 ) ENGINE=InnoDB 
 	AUTO_INCREMENT=0 
 	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
 	COMMENT='Contains the diccionary of all articles data elements of the Microservice.
-The rest of the tables only have the IDNum. To determine what a code means, you should consult this table.
-In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
-To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
+The rest of the tables only have the IDNum. To determine what a code means, you must consult this table.
+In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, Group and Language.
+To respect all the rules the unique value must be the combination of: Name/Scope/Group/Language.
+Concept: throw the group column, you can create diferents types of articles. 
+				 An example could be, a Group, or a type of articles (CarSupplier / Library / Gift / Medicines).
+				 So when you call this microservice, you can get the number of groups that you need.
 The key for each record:
   ID		--> is the uniqueidentifier auto generated.
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
   IDName     		-> is the readable code by the user.
-  ScopeIDn     		-> the Name must be unique for the application Scope, usually a Table.
-  BusinessUnitIDn 	-> the Name must be unique for the BusinessUnit.
-  LanguageIDn 		-> the Name must be unique for Language. This dictionary has a default language defined.
+  ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table.
+  GroupIDn 			-> the Name must be unique for the Group.
+  LanguageIDn 	-> the Name must be unique for Language. This dictionary has a default language defined.
 Important: when you create the element/object in this table, this element does not exits for the software. This table is like a dictionary.
-      Only exist when you create the code in the specific table.
-  Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
+      		 Only exist when you create the code in the specific table.
+  				 Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
 Modification Rules:
   You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
   Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
-  If you want to change the code and it is in many places, the system must generate another code for the new value
-  To change this value, it must be done by the administrator. 
-  It is best to never change it.
+  				 If you want to change the code and it is in many places, the system must generate another code for the new value
+  				 To change this value, it must be done by the administrator. 
+  				 IT IS BEST TO NEVER CHANGE IT.
+Kafka/RabbitMQ:
+  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.
 Common Field/Columns for all tables
   The objective of these are to store critical information for the system and the record history.
     StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
@@ -125,16 +125,7 @@ Common Field/Columns for all tables
     OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
     DateCreated			--> The DateCreated is the record creation datetime UTC.
     DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
-    TableHistory		-->	The TableHistory contain then change history of each column.
-Comments:
-  In each microservice and database, you have one DataElements_Tbl. It work as a specific dictionary for it.
-  Example:
-    In the System Microservice you have the meaning of all databases tables, columns, stored procedures, views, java entities, classes, etc.
-    In the Person Microservice you have the meaning of all person (legal or natural) whom can interact with the system.
-    In the Users Microservice you have the meaning of all person who can enter in the system to work with. 
-    In the Articles Microservice you have the meaning of all the articles that the campany can handle, to sell, buy, or have to use. 
-Tips:
-  The ScopeIDn + BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.';
+    TableHistory		-->	The TableHistory contain then change history of each column.';
 
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 -- Create the Trigger Before Insert - ArtDataElements_Tbl
@@ -150,8 +141,8 @@ CREATE TRIGGER `ArtDataElementsBeforeInsert_Trg` BEFORE INSERT ON `ArtDataElemen
 		SET new.ID = uuid();				-- Set the UniqueIdentifier Value
 	END IF;
     IF new.IDCode IS NULL OR new.IDCode = 0 OR new.IDCode = '' THEN
-		SET new.IDCode = (SELECT ifnull(MAX(IDCode),0) + 1 FROM `articlesdb`.`ArtDataElements_Tbl` WHERE BusinessUnitIDn = new.BusinessUnitIDn AND ScopeIDn = new.ScopeIDn);
-        -- Assign the numeric auto-incremental IDCode for this ScopeIDn and BusinessUnitIDn, because this number must be unique.
+		SET new.IDCode = (SELECT ifnull(MAX(IDCode),0) + 1 FROM `articlesdb`.`ArtDataElements_Tbl` WHERE GroupIDn = new.GroupIDn AND ScopeIDn = new.ScopeIDn);
+        -- Assign the numeric auto-incremental IDCode for this ScopeIDn and GroupIDn, because this number must be unique.
 	END IF;
 	SET new.DateCreated = ifnull(new.DateCreated,CURRENT_TIMESTAMP);
 	SET new.DateTimeStamp = ifnull(new.DateTimeStamp,CURRENT_TIMESTAMP);
@@ -185,7 +176,7 @@ CREATE TRIGGER `ArtDataElementsBeforeUpdate_Trg` BEFORE UPDATE ON `ArtDataElemen
 		IF NEW.IDName <> OLD.IDName THEN SET v_TableHistory := OLD.IDName; ELSE SET v_TableHistory := '†'; END IF;
 		IF NEW.IDNameStructureIDn <> OLD.IDNameStructureIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.IDNameStructureIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.ScopeIDn <> OLD.ScopeIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.ScopeIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
-		IF NEW.BusinessUnitIDn <> OLD.BusinessUnitIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.BusinessUnitIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
+		IF NEW.GroupIDn <> OLD.GroupIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.GroupIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.LanguageIDn <> OLD.LanguageIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.LanguageIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.IDCode <> OLD.IDCode THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.IDCode); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.DefinitionIDn <> OLD.DefinitionIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.DefinitionIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
