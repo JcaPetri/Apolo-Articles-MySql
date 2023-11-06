@@ -5,7 +5,7 @@ Main Structure of all Microservices
 Group: com.apolo
 Name: system / articles / persons / users
 
-========================================================================================================================================================================================
+==============================================================================================================================================================================
 #### Importan Definitions:
 	System Microservice contains the system structure of all the software. In this module you need to create all the databases and java classes, enums, interfaces, entities, etc.
 	The main tables of this module will be in the other databases such as mirrors. 
@@ -23,7 +23,7 @@ Name: system / articles / persons / users
 		ID		--> is the uniqueidentifier auto generated.
 		IDNum	--> is the autoincrement number auto generated.
 
-	--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	The Apolo Software Structure are defined by:
  		Frontend
    			This is the user interface, which call the backend to get the information and business logic.
@@ -124,50 +124,53 @@ Detailed explanation of each table.
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	Used to create the main elements
 		ArtDataElements_Tbl
-			Contains the diccionary of all articles data elements of the Microservice.
-			The rest of the tables only have the IDNum. To determine what a code means, you should consult this table.
-			In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
-			To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
-			The key for each record:
-				ID		--> is the uniqueidentifier auto generated.
-				IDNum	--> is the autoincrement number auto generated.
-			The unique Key is the union of:
-			  IDName     		-> is the readable code by the user.
-			  ScopeIDn     		-> the Name must be unique for the application Scope, usually a Table.
-			  GroupIDn 			-> the Name must be unique for the Group.
-			  LanguageIDn 		-> the Name must be unique for Language. This dictionary has a default language defined.
-			Important: when you create the element/object in this table, this element does not exits for the software. This table is like a dictionary.
-						Only exist when you create the code in the specific table.
-				Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
-			Modification Rules:
-				You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
-				Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
-				If you want to change the code and it is in many places, the system must generate another code for the new value
-				To change this value, it must be done by the administrator. 
-				It is best to never change it.
-			Common Field/Columns for all tables
-				The objective of these are to store critical information for the system and the record history.
-					StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
-					CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
-					LastModifiedByIDn	--> The LastModifiedByIDn is the IDNum of the last user who modified the record.
-					OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
-					DateCreated			--> The DateCreated is the record creation datetime UTC.
-					DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
-					TableHistory		-->	The TableHistory contain then change history of each column.
-	 		Comments:
-				In each microservice and database, you have one DataElements_Tbl. It work as a specific dictionary for it.
-				Example:
-					In the System Microservice you have the meaning of all databases tables, columns, stored procedures, views, java entities, classes, etc.
-					In the Person Microservice you have the meaning of all person (legal or natural) whom can interact with the system.
-					In the Users Microservice you have the meaning of all person who can enter in the system to work with. 
-					In the Articles Microservice you have the meaning of all the articles that the campany can handle, to sell, buy, or have to use. 
-			Tips:
-				The ScopeIDn + BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.
+				Contains the diccionary of all articles data elements of the Microservice.
+				The rest of the tables only have the IDNum. To determine what a code means, you must consult this table.
+				In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, Group and Language.
+				To respect all the rules the unique value must be the combination of: Name/Scope/Group/Language.
+				Concept: throw the group column, you can create diferents types of articles. 
+								 An example could be, a Group, or a type of articles (CarSupplier / Library / Gift / Medicines).
+								 So when you call this microservice, you can get the number of groups that you need.
+				The key for each record:
+				  ID		--> is the uniqueidentifier auto generated.
+				  IDNum	--> is the autoincrement number auto generated.
+				The unique Key is the union of:
+				  IDName     		-> is the readable code by the user.
+				  ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table.
+				  GroupIDn 			-> the Name must be unique for the Group.
+				  LanguageIDn 	-> the Name must be unique for Language. This dictionary has a default language defined.
+				Important: when you create the element/object in this table, this element does not exits for the software. This table is like a dictionary.
+				      		 Only exist when you create the code in the specific table.
+				  				 Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
+				Modification Rules:
+				  You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
+				  Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
+				  				 If you want to change the code and it is in many places, the system must generate another code for the new value
+				  				 To change this value, it must be done by the administrator. 
+				  				 IT IS BEST TO NEVER CHANGE IT.
+				Common Field/Columns for all tables
+				  The objective of these are to store critical information for the system and the record history.
+				    StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
+				    CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
+				    LastModifiedByIDn	--> The LastModifiedByIDn is the IDNum of the last user who modified the record.
+				    OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
+				    DateCreated			--> The DateCreated is the record creation datetime UTC.
+				    DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
+				    TableHistory		-->	The TableHistory contain then change history of each column.
+				Kafka/RabbitMQ:
+				  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.  
+				Comments:
+					In each microservice and database, you have one DataElements_Tbl. It work as a specific dictionary for it.
+				  Example:
+				    In the System Microservice you have the meaning of all databases tables, columns, stored procedures, views, java entities, classes, etc.
+				    In the Person Microservice you have the meaning of all person (legal or natural) whom can interact with the system.
+				    In the Users Microservice you have the meaning of all person who can enter in the system to work with. 
+				    In the Articles Microservice you have the meaning of all the articles that the campany can handle, to sell, buy, or have to use. 
 
 		ArtDataElementLanguages_Tbl	
 			Contains the meaning of the diccionary in another languages than the default.
 			In this table you have to comply with the same rules as the ArtBaseElements_Tbl.
-			Important Clarification: the values IdNum, ScopeIDn, CompanyIDn = are always equal to the ArtDataElements_Tbl. 
+			Important Clarification: the values IdNum, ScopeIDn, GroupIDn = are always equal to the ArtDataElements_Tbl. 
 									 These columns are put in this table only to ensure integrity and that there are no duplicates.
 		    The key for each record:
 				ID		--> is the uniqueidentifier auto generated.
@@ -179,7 +182,7 @@ Detailed explanation of each table.
 			  	LanguageIDn 	-> the LanguagesIDn must be diferent from the default language.
 			  	-- This two values are set by the system automaticaly, and are the same as the ArtDataElements_Tbl. For do that use the IdNum.
 			  	ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table.
-			  	BusinessUnitIDn	-> the Name must be unique for the BusinessUnit.
+			  	GroupIDn	-> the Name must be unique for the Group.
 			Common Field/Columns for all tables
 				The objective of these are to store critical information for the system and the record history.
 					StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
@@ -189,8 +192,8 @@ Detailed explanation of each table.
 					DateCreated			--> The DateCreated is the record creation datetime UTC.
 					DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
 					TableHistory		-->	The TableHistory contain then change history of each column.
-			Tips:
-				The ScopeIDn + BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.
+			Kafka/RabbitMQ:
+				  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.
 	
 		ArtDataElementComments_Tbl	
 			Contains one or more descriptions/comments/details/explains of each record of the diccionary.
@@ -210,12 +213,12 @@ Detailed explanation of each table.
 					DateCreated			--> The DateCreated is the record creation datetime UTC.
 					DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
 					TableHistory		-->	The TableHistory contain then change history of each column.			
-			Tips:
-				The ScopeIDn + BusinessUnitIDn + TableIDn combination can be the Kafka/rabbitMq topic.
+			Kafka/RabbitMQ:
+				  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.
 	
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  	Used to create the Companies
-		SysCompanies_Mir
+		ArtSysCompanies_Mir
 			Contains the Mirror of the companies that use the software. 
 			Each record is updated from SysCompanies_Tbl, which belongs to the SystemsDB database.
    			The Companies exists since you create them in this table. Its information, of what are they, are in the SysBaseElements_Mir table.
@@ -227,7 +230,7 @@ Detailed explanation of each table.
 				This table do not have another field, because the store critical information for the system and the record history are set in SysBaseElements_Tbl.
 
   	Used to create the Microservices
-		SysMicroservices_Mir
+		ArtSysMicroservices_Mir
 			Contains the Mirro of the microservices that use the software. 
    			Each record is updated from SysMicroservices_Tbl, which belongs to the SystemsDB database.
 			The Microservices exists since you create them in this table. Its information, of what are they, are in the SysBaseElements_Mir table.
@@ -240,7 +243,7 @@ Detailed explanation of each table.
 
  	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	Used to create multiples tables
-		ArtRootElements_Tli
+		ArtRootElements_Mir
    			This Is a List Table that contains the other element of the system. Enable the IDNum element to a Microservice.
 			The key for each record:
 				ID		--> is the uniqueidentifier auto generated.
