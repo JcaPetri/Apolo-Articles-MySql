@@ -183,6 +183,8 @@ Detailed explanation of each table.
 			  	-- This two values are set by the system automaticaly, and are the same as the ArtDataElements_Tbl. For do that use the IdNum.
 			  	ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table.
 			  	GroupIDn	-> the Name must be unique for the Group.
+			Kafka/RabbitMQ:
+				  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.
 			Common Field/Columns for all tables
 				The objective of these are to store critical information for the system and the record history.
 					StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
@@ -192,9 +194,7 @@ Detailed explanation of each table.
 					DateCreated			--> The DateCreated is the record creation datetime UTC.
 					DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
 					TableHistory		-->	The TableHistory contain then change history of each column.
-			Kafka/RabbitMQ:
-				  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.
-	
+
 		ArtDataElementComments_Tbl	
 			Contains one or more descriptions/comments/details/explains of each record of the diccionary.
 			It has a defined language, an order when there is more than one description, a type of text format (mimetype), a status and the date of the last update.
@@ -204,7 +204,9 @@ Detailed explanation of each table.
 				IDNum	--> is the autoincrement number auto generated.
 			The unique Key is the union of:
 			  	This table have not unique key because one IDNum can have none, one or more comments.
-			Common Field/Columns for all tables
+			Kafka/RabbitMQ:
+				  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.
+	 		Common Field/Columns for all tables
 				The objective of these are to store critical information for the system and the record history.
 					StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
 					CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
@@ -213,8 +215,6 @@ Detailed explanation of each table.
 					DateCreated			--> The DateCreated is the record creation datetime UTC.
 					DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
 					TableHistory		-->	The TableHistory contain then change history of each column.			
-			Kafka/RabbitMQ:
-				  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.
 	
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  	Used to create the Companies
@@ -242,20 +242,40 @@ Detailed explanation of each table.
 				This table do not have another field, because the store critical information for the system and the record history are set in ArtDataElements_Tbl.
 
  	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	Used to create multiples tables
-		ArtRootElements_Mir
-   			This Is a List Table that contains the other element of the system. Enable the IDNum element to a Microservice.
+
+
+========================================================================================================================================================================================
+    Used to create the Mirror Tables
+			El rootelement define la asignacion del elemento al microservicio. Esto permite mantener actualizada las tablas mirror, para agregar nuevos elementos o cambiar el estado.
+	 			Eje ArtMicrosRootElement
+	 		Pero la actualizacion de lo que significa cada elemento, se hace con la actualizacion del SysBaseElement_Tbl. Scope + BusinessUnit, son dos actualizaciones distintas
+			ya que el diccionario no depende del microservicio, sino de la empresa, o de system 
+	 			Eje PeperinaEntityField
+	
+			Concept: When some value changed in the main table (SysBaseElements_Tbl), a Kaftka producer send this changed to a queue name SysBaseElements+BusinessUnitIDn+ScopeIDn.
+	 						 After the item microservices take this change from the queue, the update procedure is triggered, only for the values that are in this microservice.
+			ArtSysRootElements_Mir	--> This is the MIRROR of the List Table that contains the other element of the system. Enable the IDNum element to a Microservice and BusinessUnit.
+	 		ArtSysBaseElements_Mir	--> Contains the MIRROR of the diccionary of all system elements of the Microservice.
+					ArtSysBaseElementLanguages_Mir	--> Contains the MIRROR of the meaning of the diccionary in other languages.
+					ArtSysBaseElementComments_Mir	--> Contains the MIRROR of the comments/details/explains of each record of the diccionary.
+		      ArtSysCompanies_Mir  --> Contain the MIRROR of the SysCompanies_Tbl information.
+
+ 	ArtSysRootElements_Mir
+   			This is a List Table that contains the other element of the system. Enable the IDNum element to a Microservice.
+				To update the system dictionary (ArtSysBaseElements_Mir) the software use this table to know, which element is enable for each microservices. 
 			The key for each record:
 				ID		--> is the uniqueidentifier auto generated.
 				IDNum	--> is the autoincrement number auto generated.
 				This table has its own key only for update it.
 				The system does not use this key because, here we only enable the element to a Microservice.
 			The unique Key is the union of:
-				RootElementIDn 		--> the IdNum of the entity
+				RootElementIDn 		--> the IdNum of the element assigned to the microservice.
 				MicroserviceIDn		--> the IdNum of the Microservice that the Entity belong. When is equal System, all microservices of the BusinessUnit have access to them.
 			Example: In the BaseElement_Tbl you have been created all values of the SysContries or SysLangueges, etc. This table is the diccionary and this values can not use it.
 					 To make real and enable these values, we must to create a specific table for its. 
 					 But if you are going to use only somes record of each tables, is bether have one table with all small tables. This table is called SysRootElement_Tbl.
+			Kafka/RabbitMQ:
+  			The RootElementIDn + MicroserviceIDn combination can be the topic. 
 			Common Field/Columns for all tables
 				The objective of these are to store critical information for the system and the record history.
 					StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
@@ -265,12 +285,13 @@ Detailed explanation of each table.
 					DateCreated			--> The DateCreated is the record creation datetime UTC.
 					DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
 					TableHistory		-->	The TableHistory contain then change history of each column.
-   			Tips:
-				The RootElementIDn + MicroserviceIDn combination can be the Kafka/rabbitMq topic.		 
+
+
+ 
 					 
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	Used to create the software structure
-		ArtGeneral_Tbl 
+		ArtGeneralProperties_Tbl 
 			Contains the general information of the articles.
    This is a List Table that contains the entities of the system, they can be database tables or java classes. 
 			Enable the IDNum element to a Microservice.
@@ -298,9 +319,39 @@ Detailed explanation of each table.
 			Kafka/rabbitMq Topic:
 				The combination of EntityIDn + MicroserviceIDn combination can be used.	 
 
+		ArtGeneralPropertyOptionalFields_Tbl
+			Contains the Articles General Properties Optional Fields
+			This optional property is used to set up a property for a specific article. The others articles do not have this property.
+			In each record you specify the property and the value it assumes for each item.
+			The key for each record:
+			  ID		--> is the uniqueidentifier auto generated.
+			  IDNum	--> is the autoincrement number auto generated.
+			The unique Key is the union of:
+			  TableFieldIDn    -> the table field Link with the System database - SysTableFields.
+			  ArtGeneralPropertyIDn		-> the article general property, from the ArtGeneralProperties_Tbl.
+			  GroupIDn 	-> the article GroupIDn.
+			  (The table field can be unique for a General Property)
+			Kafka/RabbitMQ:
+			  The GroupIDn + TableIDn combination can be the topic.  
+			Common Field/Columns for all tables
+			  The objective of these are to store critical information for the system and the record history.
+			    StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
+			    CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
+			    LastModifiedByIDn	--> The LastModifiedByIDn is the IDNum of the last user who modified the record.
+			    OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
+			    DateCreated			--> The DateCreated is the record creation datetime UTC.
+			    DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
+			    TableHistory		-->	The TableHistory contain then change history of each column.
 
-ArtGeneral_Tbl    --> Contains the general information of the articles. 
- 
+
+
+
+
+
+
+
+
+
 		SysEntityFields_Tli	
 			This is a List Table that contains the fields or the columns of the system. Enable the IDNum element to a Microservice.
 			The fields exits to the Microservice, since you create it in this table. The information, of what are they, are in the ArtDataElements_Tbl table.
