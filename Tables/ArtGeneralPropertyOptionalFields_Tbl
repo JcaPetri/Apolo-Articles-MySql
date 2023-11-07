@@ -1,18 +1,16 @@
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 -- Create the ArtGeneralPropertyOptionalFields_Tbl table
 /*Contains the Articles General Properties Optional Fields
-This optional property is used to set up a property for a specific article. The others articles do not have this property.
+This optional property is used to set up a property for a specific General Property. The others general properties do not have this property.
 In each record you specify the property and the value it assumes for each item.
 The key for each record:
   ID		--> is the uniqueidentifier auto generated.
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
-  TableFieldIDn    -> the table field Link with the System database - SysTableFields.
-  ArtGeneralPropertyIDn		-> the article general property, from the ArtGeneralProperties_Tbl.
-  GroupIDn 	-> the article GroupIDn.
-  (The table field can be unique for a General Property)
+  TableFieldIDn    				-> the table field ArtSysEntityStructures_Mir, this table is linked with the System database throw Kafka.
+  ArtGeneralPropertyIDn		-> the article general property, from the ArtGeneralProperties_Tbl. This tabla has the key combination of ArtGeneralPropertyIDn an GroupIDn
 Kafka/RabbitMQ:
-  The GroupIDn + TableIDn combination can be the topic.  
+  The ArtGeneralPropertyIDn + TableIDn combination can be the topic.  
 Common Field/Columns for all tables
   The objective of these are to store critical information for the system and the record history.
     StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
@@ -39,7 +37,6 @@ CREATE TABLE `ArtGeneralPropertyOptionalFields_Tbl` (
 	  `ID` char(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The ID is the uniqueidentifier auto generated V4', 
     `TableFieldIDn` integer NOT NULL COMMENT 'The TableFieldIDn is the IDNum of the field property. Link with the System database - SysTableFields.',
     `ArtGeneralPropertyIDn` integer NOT NULL COMMENT 'The ArtGeneralPropertyIDn is the IDNum of the articles general properties. Link with the ArtGeneralProperties_Tbl table.',
-    `GroupIDn` integer NOT NULL COMMENT 'The GroupIDn is the Group that the general articles belong.',
     `FieldValueTypeIDn` integer NOT NULL COMMENT 'TThe FieldValueTypeIDn is the IDNum of the type property. Its come from the SysBaseElement.',
     `FieldValue` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The FieldValue is a numeric/text/etc value of the property, this value is not standar and can´t be multilanguage. If the value is an IDNumType, the meaning is in the ArticleOptionalFields_Tbl.',
     `StateIDn` smallint NOT NULL COMMENT 'The StatedIDn define if the record is enable or not.',
@@ -54,28 +51,26 @@ CREATE TABLE `ArtGeneralPropertyOptionalFields_Tbl` (
 	  PRIMARY KEY `ID_AgpoPriKey` (`IDNum`) COMMENT 'The sequence ArtGeneralPropertyOptionalFields_Tbl_seq generate the nextval',
 	  UNIQUE KEY `ID_AgpoUnique` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
     UNIQUE KEY `IDNum_AgpoUnique` (`IDNum`) COMMENT 'The IDNum must be unique.',
-		UNIQUE KEY `ArtGenProGroup_AgpoUnique` (`TableFieldIDn`, `ArtGeneralPropertyIDn`, `GroupIDn`) COMMENT 'The ArtGeneralPropertyIDn must be unique for a TableField and GroupIDn.',
+		UNIQUE KEY `ArtGenProGroup_AgpoUnique` (`TableFieldIDn`, `ArtGeneralPropertyIDn`) COMMENT 'The TableField must be unique for a ArtGeneralPropertyIDn.',
 	  KEY `ID_AgpoIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID alway must be indexed.',
 	  KEY `IDNum_AgpoIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
-		KEY `ArtGenProGroup_AgpoIdx` (`ArtGeneralPropertyIDn` ASC, `GroupIDn` ASC) VISIBLE COMMENT 'To optimize the search of one element for a Group Tables.',
-    CONSTRAINT `TableFieldIDn_AgpoRel` FOREIGN KEY (`TableFieldIDn`) REFERENCES `articlesdb`.`ArtSysBaseElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
+		KEY `ArtGenPro_AgpoIdx` (`TableFieldIDn` ASC, `ArtGeneralPropertyIDn` ASC) VISIBLE COMMENT 'To optimize the search of one element for a Tables.',
+    -- CONSTRAINT `TableFieldIDn_AgpoRel` FOREIGN KEY (`TableFieldIDn`) REFERENCES `articlesdb`.`ArtSysBaseElements_Mir` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
 	  CONSTRAINT `ArtGeneralPropertyIDn_AgpoRel` FOREIGN KEY (`ArtGeneralPropertyIDn`) REFERENCES `articlesdb`.`ArtGeneralProperties_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB 
 	AUTO_INCREMENT=0 
 	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
 	COMMENT='Contains the Articles General Properties Optional Fields
-This optional property is used to set up a property for a specific article. The others articles do not have this property.
+This optional property is used to set up a property for a specific General Property. The others general properties do not have this property.
 In each record you specify the property and the value it assumes for each item.
 The key for each record:
   ID		--> is the uniqueidentifier auto generated.
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
-  TableFieldIDn    -> the table field Link with the System database - SysTableFields.
-  ArtGeneralPropertyIDn		-> the article general property, from the ArtGeneralProperties_Tbl.
-  GroupIDn 	-> the article GroupIDn.
-  (The table field can be unique for a General Property)
+  TableFieldIDn    				-> the table field ArtSysEntityStructures_Mir, this table is linked with the System database throw Kafka.
+  ArtGeneralPropertyIDn		-> the article general property, from the ArtGeneralProperties_Tbl. This tabla has the key combination of ArtGeneralPropertyIDn an GroupIDn
 Kafka/RabbitMQ:
-  The GroupIDn + TableIDn combination can be the topic.  
+  The ArtGeneralPropertyIDn + TableIDn combination can be the topic.  
 Common Field/Columns for all tables
   The objective of these are to store critical information for the system and the record history.
     StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
@@ -130,7 +125,6 @@ CREATE TRIGGER `ArtGeneralPropertyOptionalFieldsBeforeUpdate_Trg` BEFORE UPDATE 
 		-- ID, this value never changes.
 		IF NEW.TableFieldIDn <> OLD.TableFieldIDn THEN SET v_TableHistory := OLD.TableFieldIDn; ELSE SET v_TableHistory := '†'; END IF;
     IF NEW.ArtGeneralPropertyIDn <> OLD.ArtGeneralPropertyIDn THEN SET v_TableHistory := OLD.ArtGeneralPropertyIDn; ELSE SET v_TableHistory := '†'; END IF;
-    IF NEW.GroupIDn <> OLD.GroupIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.GroupIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
     IF NEW.FieldValueTypeIDn <> OLD.FieldValueTypeIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.FieldValueTypeIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
     IF NEW.FieldValue <> OLD.FieldValue THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.FieldValue); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
 		IF NEW.StateIDn <> OLD.StateIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.StateIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
