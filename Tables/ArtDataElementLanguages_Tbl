@@ -42,7 +42,7 @@ CREATE TABLE `ArtDataElementLanguages_Tbl` (
 	  `IDNum` int NOT NULL AUTO_INCREMENT COMMENT 'The IDNum is the autoincrement number', 
 	  `ID` char(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The ID is the uniqueidentifier auto generated V4', 
 	  `DataElementLanguageIDn` int NOT NULL COMMENT 'The DataElementLanguageIDn is the IDNum of the IDName from the ArtDataElement, which has the IDName in other languages than default.',
-     `IDName` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The IDName is the user-readable code for the selected language.',
+    `IDName` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The IDName is the user-readable code for the selected language.',
 	  `IDNameStructureIDn` int NOT NULL COMMENT 'The IDNameStructureIDn is the IDNum of the IDName structure, if the IDName is multivalued, here it refers to the structure.',
 	  `ScopeIDn` int NOT NULL COMMENT 'The ScopeIDn is the IdNum of the Scope, the Name must be unique for the scope of application, usually a Table. It inherited from ArtDataElements_Tbl.',
 	  `GroupIDn` int NOT NULL COMMENT 'The GroupIDn is the IdNum of the Group to which the IDName is assigned. It inherited from ArtDataElements_Tbl.',
