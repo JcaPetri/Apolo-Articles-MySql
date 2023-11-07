@@ -1,0 +1,85 @@
+-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+-- Create the ArtSysBaseElements_Mir table
+/*Contains the Mirror of the SysBaseElements_Tbl form ApoloSystems.
+The user never changed this table, it has been changed throw Kafka from the ApoloSystem.
+This tabla has the diccionary of all system elements used by this Microservice.
+To determine what a code means, you should consult this table.
+In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
+To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
+Important: when you create the element/object in this tabel, this element does not exits for the software. This table is like a dictionary.
+			Only exist when you create the code in the specific table.
+	Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
+Modification Rules:
+	You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
+	Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
+	If you want to change the code and it is in many places, the system must generate another code for the new value
+	To change this value, it must be done by the administrator. 
+	It is best to never change it.
+Kafka/RabbitMQ:
+  The BusinessUnitIDn + TableIDn combination can be the topic.*/
+
+-- #########################################################################################################################################################################################
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Delete the table ArtSysBaseElements_Mir if Exits, but first you must to altere the tables that have a referenced foreign key
+USE systemsdb;
+-- First you must to delete the Foreing Key Constraint;
+-- The referenced ArtSysBaseElements_Mir Tables:
+ALTER TABLE `systemsdb`.`SysBaseElementLanguages_Tbl` DROP FOREIGN KEY `BaseElementLanguageIDn_Rel`;
+ALTER TABLE `systemsdb`.`SysBaseElementComments_Tbl` DROP FOREIGN KEY `CommentIDn_Rel`;
+
+-- After deleted the referenced, you can delete the table
+DROP TABLE IF EXISTS `systemsdb`.`ArtSysBaseElements_Mir`;
+
+CREATE TABLE `ArtSysBaseElements_Mir` (
+	  `IDNum` int NOT NULL AUTO_INCREMENT COMMENT 'The IDNum is the autoincrement number', 
+	  `ID` char(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The ID is the uniqueidentifier auto generated V4', 
+	  `IDName` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The IDName is the user-readable code for the selected language.',
+	  `IDNameStructureIDn` int NOT NULL COMMENT 'The IDNameStructureIDn is the IDNum of the IDName structure, if the IDName is multivalued, here it refers to the structure.',
+	  `ScopeIDn` int NOT NULL COMMENT 'The ScopeIDn is the IdNum of the Scope, the Name must be unique for the scope of application, usually a Table',
+	  `BusinessUnitIDn` int NOT NULL COMMENT 'The BusinessUnitIDn is the IdNum of the BusinessUnit to which the IDName is assigned',
+	  `LanguageIDn` int NOT NULL COMMENT 'The LanguageIDn is the IdNum of the language in which the Name is defined',
+	  `IDCode` int NOT NULL COMMENT 'The IDCode is the unique code of the record for a scope and company.',
+	  `DefinitionIDn` int NOT NULL COMMENT 'The DefinitionIDn is the IdNum of the element definition type.',
+	  `InformationTypeIDn` int NOT NULL COMMENT 'Then InformationTypeIDn is the IdNum of the type of information that the record represents.',
+	  `IDIsUsed` tinyint NOT NULL COMMENT 'The IDIsUsed determines if the registry is used or not.',
+	  `StateIDn` smallint NOT NULL COMMENT 'The StatedIDn define if the record is enable or not.',
+	  `CreatedByIDn` int NOT NULL COMMENT 'The CreatedByIDn is the IdNum of the user who created the record.',
+	  `LastModifiedByIDn` int NOT NULL COMMENT 'The LastModifiedByIDn is the IdNum of the last user who modified the record.',
+	  `OwnerIDn` int NOT NULL COMMENT 'The OwnerIDn is the IdNum of the record owner.',
+	  `DateCreated` datetime NOT NULL COMMENT 'The DateCreated is the record creation date with UTC.',
+	  `DateTimeStamp` timestamp NOT NULL COMMENT 'The DateTimeStamp is the date of the last modification of the record with UTC.',
+ 	  `TzNameIDn` smallint NOT NULL COMMENT 'The IDNum of the TimeZone',				
+	  `TzOffset` smallint NOT NULL COMMENT 'The diferences between ZeroTimeZone and the TimeZone where the record is created or updated.',					
+	  `TableHistory` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT 'The TableHistory contain then change history of each column.',
+	  PRIMARY KEY `ID_ASbePriKey` (`IDNum`) COMMENT 'The sequence ArtSysBaseElements_Mir_seq generate the nextval',
+	  UNIQUE KEY `ID_ASbeUnique` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
+	  UNIQUE KEY `IDNum_ASbeUnique` (`IDNum`) COMMENT 'The IDNum must be unique.',
+	  UNIQUE KEY `IDNameScopeBusUnitLang_ASbeUnique` (`IDName`,`ScopeIDn`,`BusinessUnitIDn`,`LanguageIDn`) COMMENT 'A name can be unique for a ScopeId, for a BusinessUnitId, and LanguageId.',
+	  UNIQUE KEY `IDCodeIDScopeIDBusUnit_ASbeUnique` (`BusinessUnitIDn`,`ScopeIDn`, `IDCode`) COMMENT 'A IDCode must be unique for a ScopeId and for a BusinessUnitId.',
+	  KEY `ID_ASbeIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID alway must be indexed.',
+	  KEY `IDNum_ASbeIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
+	  KEY `IDCode_ASbeIdx` (`IDCode`) /*!80000 INVISIBLE */ COMMENT 'The IDCode must be indexed, because it works like IDNum.',
+	  KEY `IDBusUnitScop_ASbeIdx` (`IDIsUsed` ASC, `BusinessUnitIDn` ASC, `ScopeIDn`ASC) COMMENT 'To optimize the search of Business Tables.'
+) ENGINE=InnoDB 
+	AUTO_INCREMENT=0 
+	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
+	COMMENT='Contains the Mirror of the SysBaseElements_Tbl form ApoloSystems.
+The user never changed this table, it has been changed throw Kafka from the ApoloSystem.
+This tabla has the diccionary of all system elements used by this Microservice.
+To determine what a code means, you should consult this table.
+In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
+To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
+Important: when you create the element/object in this tabel, this element does not exits for the software. This table is like a dictionary.
+			Only exist when you create the code in the specific table.
+	Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
+Modification Rules:
+	You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
+	Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
+	If you want to change the code and it is in many places, the system must generate another code for the new value
+	To change this value, it must be done by the administrator. 
+	It is best to never change it.
+Kafka/RabbitMQ:
+  The BusinessUnitIDn + TableIDn combination can be the topic.';
+
+-- Lista los datos de la tabla
+SELECT * FROM `systemsdb`.`ArtSysBaseElements_Mir`;
