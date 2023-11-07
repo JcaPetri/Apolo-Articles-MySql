@@ -8,7 +8,7 @@ The key for each record:
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
   TableFieldIDn    				-> the table field ArtSysEntityStructures_Mir, this table is linked with the System database throw Kafka.
-  ArtGeneralPropertyIDn		-> the article general property, from the ArtGeneralProperties_Tbl. This tabla has the key combination of ArtGeneralPropertyIDn an GroupIDn
+  ArtGeneralPropertyIDn		-> the article general property, from the ArtGeneralProperties_Tbl. This table has the key combination of ArtGeneralPropertyIDn an GroupIDn
 Kafka/RabbitMQ:
   The ArtGeneralPropertyIDn + TableIDn combination can be the topic.  
 Common Field/Columns for all tables
@@ -51,11 +51,11 @@ CREATE TABLE `ArtGeneralPropertyOptionalFields_Tbl` (
 	  PRIMARY KEY `ID_AgpoPriKey` (`IDNum`) COMMENT 'The sequence ArtGeneralPropertyOptionalFields_Tbl_seq generate the nextval',
 	  UNIQUE KEY `ID_AgpoUnique` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
     UNIQUE KEY `IDNum_AgpoUnique` (`IDNum`) COMMENT 'The IDNum must be unique.',
-		UNIQUE KEY `ArtGenProGroup_AgpoUnique` (`TableFieldIDn`, `ArtGeneralPropertyIDn`) COMMENT 'The TableField must be unique for a ArtGeneralPropertyIDn.',
+		UNIQUE KEY `TblFieldArtGenProp_AgpoUnique` (`TableFieldIDn`, `ArtGeneralPropertyIDn`) COMMENT 'The TableField must be unique for a ArtGeneralPropertyIDn.',
 	  KEY `ID_AgpoIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID alway must be indexed.',
 	  KEY `IDNum_AgpoIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
-		KEY `ArtGenPro_AgpoIdx` (`TableFieldIDn` ASC, `ArtGeneralPropertyIDn` ASC) VISIBLE COMMENT 'To optimize the search of one element for a Tables.',
-    -- CONSTRAINT `TableFieldIDn_AgpoRel` FOREIGN KEY (`TableFieldIDn`) REFERENCES `articlesdb`.`ArtSysBaseElements_Mir` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
+		KEY `TblFieldArtGenProp_AgpoIdx` (`TableFieldIDn` ASC, `ArtGeneralPropertyIDn` ASC) VISIBLE COMMENT 'To optimize the search of one element for a Tables.',
+    CONSTRAINT `TableFieldIDn_AgpoRel` FOREIGN KEY (`TableFieldIDn`) REFERENCES `articlesdb`.`ArtSysBaseElements_Mir` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
 	  CONSTRAINT `ArtGeneralPropertyIDn_AgpoRel` FOREIGN KEY (`ArtGeneralPropertyIDn`) REFERENCES `articlesdb`.`ArtGeneralProperties_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB 
 	AUTO_INCREMENT=0 
@@ -68,7 +68,7 @@ The key for each record:
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
   TableFieldIDn    				-> the table field ArtSysEntityStructures_Mir, this table is linked with the System database throw Kafka.
-  ArtGeneralPropertyIDn		-> the article general property, from the ArtGeneralProperties_Tbl. This tabla has the key combination of ArtGeneralPropertyIDn an GroupIDn
+  ArtGeneralPropertyIDn		-> the article general property, from the ArtGeneralProperties_Tbl. This table has the key combination of ArtGeneralPropertyIDn an GroupIDn
 Kafka/RabbitMQ:
   The ArtGeneralPropertyIDn + TableIDn combination can be the topic.  
 Common Field/Columns for all tables
