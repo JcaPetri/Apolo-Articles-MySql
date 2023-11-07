@@ -1,7 +1,7 @@
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 -- Create the ArtDataElements_Tbl table
-/*Contains the diccionary of all articles data elements of the Microservice.
-The rest of the tables only have the IDNum. To determine what a code means, you must consult this table.
+/*Contains the elements of all Microservice tables.
+To add more properties to an element, you must specify it, in the ArtDataElementOptionalFields_Tbl.
 In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, Group and Language.
 To respect all the rules the unique value must be the combination of: Name/Scope/Group/Language.
 Concept: throw the group column, you can create diferents types of articles. 
@@ -12,12 +12,9 @@ The key for each record:
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
   IDName     		-> is the readable code by the user.
-  ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table.
+  ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table or Entity.
   GroupIDn 			-> the Name must be unique for the Group.
   LanguageIDn 	-> the Name must be unique for Language. This dictionary has a default language defined.
-Important: when you create the element/object in this table, this element does not exits for the software. This table is like a dictionary.
-      		 Only exist when you create the code in the specific table.
-  				 Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
 Modification Rules:
   You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
   Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
@@ -34,7 +31,7 @@ Common Field/Columns for all tables
     DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
     TableHistory		-->	The TableHistory contain then change history of each column.
 Kafka/RabbitMQ:
-  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.  
+  The ScopeIDn + GroupIDn + ArtDataElement combination can be the topic.  
 Comments:
 	In each microservice and database, you have one DataElements_Tbl. It work as a specific dictionary for it.
   Example:
@@ -79,11 +76,11 @@ CREATE TABLE `ArtDataElements_Tbl` (
  	  `TzNameIDn` smallint NOT NULL COMMENT 'The IDNum of the TimeZone',				
 	  `TzOffset` smallint NOT NULL COMMENT 'The diferences between ZeroTimeZone and the TimeZone where the record is created or updated.',					
 	  `TableHistory` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT 'The TableHistory contain then change history of each column.',
-	  PRIMARY KEY `ID_AdePriKey` (`IDNum`) COMMENT 'The sequence ArtDataElements_Tbl_seq generate the nextval',
-	  UNIQUE KEY `ID_AdeUnique` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
-	  UNIQUE KEY `IDNum_AdeUnique` (`IDNum`) COMMENT 'The IDNum must be unique.',
-	  UNIQUE KEY `IDNameScopeGroupLang_AdeUnique` (`IDName`,`ScopeIDn`,`GroupIDn`,`LanguageIDn`) COMMENT 'A name can be unique for a ScopeId, for a GroupId, and LanguageId.',
-	  UNIQUE KEY `IDCodeScopeGroup_AdeUnique` (`GroupIDn`,`ScopeIDn`, `IDCode`) COMMENT 'A IDCode must be unique for a ScopeId and for a GroupId.',
+	  PRIMARY KEY `ID_AdeKey` (`IDNum`) COMMENT 'The sequence ArtDataElements_Tbl_seq generate the nextval',
+	  UNIQUE KEY `ID_AdeUni` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
+	  UNIQUE KEY `IDNum_AdeUni` (`IDNum`) COMMENT 'The IDNum must be unique.',
+	  UNIQUE KEY `IDNameScopeGroupLang_AdeUni` (`IDName`,`ScopeIDn`,`GroupIDn`,`LanguageIDn`) COMMENT 'A name can be unique for a ScopeId, for a GroupId, and LanguageId.',
+	  UNIQUE KEY `IDCodeScopeGroup_AdeUni` (`GroupIDn`,`ScopeIDn`, `IDCode`) COMMENT 'A IDCode must be unique for a ScopeId and for a GroupId.',
 	  KEY `ID_AdeIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID alway must be indexed.',
 	  KEY `IDNum_AdeIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
 	  KEY `IDCode_AdeIdx` (`IDCode`) /*!80000 INVISIBLE */ COMMENT 'The IDCode must be indexed, because it works like IDNum.',
@@ -91,8 +88,8 @@ CREATE TABLE `ArtDataElements_Tbl` (
 ) ENGINE=InnoDB 
 	AUTO_INCREMENT=0 
 	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
-	COMMENT='Contains the diccionary of all articles data elements of the Microservice.
-The rest of the tables only have the IDNum. To determine what a code means, you must consult this table.
+	COMMENT='Contains the elements of all Microservice tables.
+To add more properties to an element, you must specify it, in the ArtDataElementOptionalFields_Tbl.
 In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, Group and Language.
 To respect all the rules the unique value must be the combination of: Name/Scope/Group/Language.
 Concept: throw the group column, you can create diferents types of articles. 
@@ -103,29 +100,15 @@ The key for each record:
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
   IDName     		-> is the readable code by the user.
-  ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table.
+  ScopeIDn     	-> the Name must be unique for the application Scope, usually a Table or Entity.
   GroupIDn 			-> the Name must be unique for the Group.
   LanguageIDn 	-> the Name must be unique for Language. This dictionary has a default language defined.
-Important: when you create the element/object in this table, this element does not exits for the software. This table is like a dictionary.
-      		 Only exist when you create the code in the specific table.
-  				 Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
 Modification Rules:
   You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
   Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
   				 If you want to change the code and it is in many places, the system must generate another code for the new value
   				 To change this value, it must be done by the administrator. 
-  				 IT IS BEST TO NEVER CHANGE IT.
-Kafka/RabbitMQ:
-  The ScopeIDn + GroupIDn + TableIDn combination can be the topic.
-Common Field/Columns for all tables
-  The objective of these are to store critical information for the system and the record history.
-    StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
-    CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
-    LastModifiedByIDn	--> The LastModifiedByIDn is the IDNum of the last user who modified the record.
-    OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
-    DateCreated			--> The DateCreated is the record creation datetime UTC.
-    DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
-    TableHistory		-->	The TableHistory contain then change history of each column.';
+  				 IT IS BEST TO NEVER CHANGE IT.';
 
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 -- Create the Trigger Before Insert - ArtDataElements_Tbl
