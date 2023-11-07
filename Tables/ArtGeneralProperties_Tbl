@@ -10,8 +10,8 @@ The key for each record:
   ID		--> is the uniqueidentifier auto generated.
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
-  ArtGeneralPropertyIDn		-> the ArtGeneralPropertyIDn must be unique for the Group.
-  GroupIDn 	-> the ArtGeneralPropertyIDn must be unique for the Group.
+  GeneralPropertyIDn		-> the GeneralPropertyIDn must be unique for the Group.
+  GroupIDn 	-> the GeneralPropertyIDn must be unique for the Group.
 Kafka/RabbitMQ:
   The GroupIDn + TableIDn combination can be the topic.  
 Common Field/Columns for all tables
@@ -39,7 +39,7 @@ DROP TABLE IF EXISTS `articlesdb`.`ArtGeneralProperties_Tbl`;
 CREATE TABLE `ArtGeneralProperties_Tbl` (
 	  `IDNum` int NOT NULL AUTO_INCREMENT COMMENT 'The IDNum is the autoincrement number', 
 	  `ID` char(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The ID is the uniqueidentifier auto generated V4', 
-		`ArtGeneralPropertyIDn` integer NOT NULL COMMENT 'The ArtGeneralPropertyIDn is the IDNum of the general articles properties. Link with the diccionary table - ArtTDataElement.',
+		`GeneralPropertyIDn` integer NOT NULL COMMENT 'The GeneralPropertyIDn is the IDNum of the general articles properties. Link with the diccionary table - ArtTDataElement.',
     `GroupIDn` integer NOT NULL COMMENT 'The GroupIDn is the Group that the general articles belong.',
     `ScalesUse` tinyint NOT NULL COMMENT 'The ScalesUse enables the use of scales for the item.',
     `StockEnable` tinyint NOT NULL COMMENT'The StockEnable enables if the article item is carried in stock.',
@@ -62,12 +62,12 @@ CREATE TABLE `ArtGeneralProperties_Tbl` (
 	  PRIMARY KEY `ID_AgpPriKey` (`IDNum`) COMMENT 'The sequence ArtGeneralProperties_Tbl_seq generate the nextval',
 	  UNIQUE KEY `ID_AgpUnique` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
     UNIQUE KEY `IDNum_AgpUnique` (`IDNum`) COMMENT 'The IDNum must be unique.',
-		UNIQUE KEY `ArtGenProGroup_AgpUnique` (`ArtGeneralPropertyIDn`, `GroupIDn`) COMMENT 'The ArtGeneralPropertyIDn must be unique for a GroupIDn.',
+		UNIQUE KEY `GenProGroup_AgpUnique` (`GeneralPropertyIDn`, `GroupIDn`) COMMENT 'The GeneralPropertyIDn must be unique for a GroupIDn.',
 	  KEY `ID_AgpIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID alway must be indexed.',
 	  KEY `IDNum_AgpIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
-		KEY `ArtGenProGroup_AgpIdx` (`ArtGeneralPropertyIDn` ASC, `GroupIDn` ASC) VISIBLE COMMENT 'To optimize the search of one element for a Group Tables.',
-	  CONSTRAINT `ArtGeneralPropertyIDn_AgpRel` FOREIGN KEY (`ArtGeneralPropertyIDn`) REFERENCES `articlesdb`.`ArtDataElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
-		-- In the ArtdDataElements_Tbl in the ArtGeneralProperty Scope you create this value.
+		KEY `GenProGroup_AgpIdx` (`GeneralPropertyIDn` ASC, `GroupIDn` ASC) VISIBLE COMMENT 'To optimize the search of one element for a Group Tables.',
+	  CONSTRAINT `GeneralPropertyIDn_AgpRel` FOREIGN KEY (`GeneralPropertyIDn`) REFERENCES `articlesdb`.`ArtDataElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
+		-- In the ArtDataElements_Tbl in the GeneralProperty Scope you create this value.
 ) ENGINE=InnoDB 
 	AUTO_INCREMENT=0 
 	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
@@ -81,8 +81,8 @@ The key for each record:
   ID		--> is the uniqueidentifier auto generated.
   IDNum	--> is the autoincrement number auto generated.
 The unique Key is the union of:
-  ArtGeneralPropertyIDn		-> the ArtGeneralPropertyIDn must be unique for the Group.
-  GroupIDn 	-> the ArtGeneralPropertyIDn must be unique for the Group.
+  GeneralPropertyIDn		-> the GeneralPropertyIDn must be unique for the Group.
+  GroupIDn 	-> the GeneralPropertyIDn must be unique for the Group.
 Kafka/RabbitMQ:
   The GroupIDn + TableIDn combination can be the topic.  
 Common Field/Columns for all tables
@@ -137,7 +137,7 @@ CREATE TRIGGER `ArtGeneralPropertiesBeforeUpdate_Trg` BEFORE UPDATE ON `ArtGener
 		SET v_TableHistory = '';
 		-- IDNum, this value never changes.
 		-- ID, this value never changes.
-		IF NEW.ArtGeneralPropertyIDn <> OLD.ArtGeneralPropertyIDn THEN SET v_TableHistory := OLD.ArtGeneralPropertyIDn; ELSE SET v_TableHistory := '†'; END IF;
+		IF NEW.GeneralPropertyIDn <> OLD.GeneralPropertyIDn THEN SET v_TableHistory := OLD.GeneralPropertyIDn; ELSE SET v_TableHistory := '†'; END IF;
     IF NEW.GroupIDn <> OLD.GroupIDn THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.GroupIDn); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
     IF NEW.ScalesUse <> OLD.ScalesUse THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.ScalesUse); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
     IF NEW.StockEnable <> OLD.StockEnable THEN SET v_TableHistory := CONCAT(v_TableHistory,'†',OLD.StockEnable); ELSE SET v_TableHistory := CONCAT(v_TableHistory,'†'); END IF;
