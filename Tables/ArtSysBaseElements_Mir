@@ -2,13 +2,10 @@
 -- Create the ArtSysBaseElements_Mir table
 /*Contains the Mirror of the SysBaseElements_Tbl form ApoloSystems.
 The user never changed this table, it has been changed throw Kafka from the ApoloSystem.
-This tabla has the diccionary of all system elements used by this Microservice.
+This table contain the elements of all System Microservice tables.
 To determine what a code means, you should consult this table.
 In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
 To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
-Important: when you create the element/object in this tabel, this element does not exits for the software. This table is like a dictionary.
-			Only exist when you create the code in the specific table.
-	Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
 Modification Rules:
 	You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
 	Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
@@ -17,18 +14,17 @@ Modification Rules:
 	It is best to never change it.
 Kafka/RabbitMQ:
   The BusinessUnitIDn + TableIDn combination can be the topic.*/
-
 -- #########################################################################################################################################################################################
 -- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Delete the table ArtSysBaseElements_Mir if Exits, but first you must to altere the tables that have a referenced foreign key
-USE systemsdb;
+USE articlesdb;
 -- First you must to delete the Foreing Key Constraint;
 -- The referenced ArtSysBaseElements_Mir Tables:
-ALTER TABLE `systemsdb`.`SysBaseElementLanguages_Tbl` DROP FOREIGN KEY `BaseElementLanguageIDn_Rel`;
-ALTER TABLE `systemsdb`.`SysBaseElementComments_Tbl` DROP FOREIGN KEY `CommentIDn_Rel`;
+ALTER TABLE `articlesdb`.`SysBaseElementLanguages_Tbl` DROP FOREIGN KEY `BaseElementLanguageIDn_Rel`;
+ALTER TABLE `articlesdb`.`SysBaseElementComments_Tbl` DROP FOREIGN KEY `CommentIDn_Rel`;
 
 -- After deleted the referenced, you can delete the table
-DROP TABLE IF EXISTS `systemsdb`.`ArtSysBaseElements_Mir`;
+DROP TABLE IF EXISTS `articlesdb`.`ArtSysBaseElements_Mir`;
 
 CREATE TABLE `ArtSysBaseElements_Mir` (
 	  `IDNum` int NOT NULL AUTO_INCREMENT COMMENT 'The IDNum is the autoincrement number', 
@@ -65,13 +61,10 @@ CREATE TABLE `ArtSysBaseElements_Mir` (
 	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
 	COMMENT='Contains the Mirror of the SysBaseElements_Tbl form ApoloSystems.
 The user never changed this table, it has been changed throw Kafka from the ApoloSystem.
-This tabla has the diccionary of all system elements used by this Microservice.
+This table contain the elements of all System Microservice tables.
 To determine what a code means, you should consult this table.
 In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
 To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
-Important: when you create the element/object in this tabel, this element does not exits for the software. This table is like a dictionary.
-			Only exist when you create the code in the specific table.
-	Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
 Modification Rules:
 	You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
 	Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
@@ -82,4 +75,4 @@ Kafka/RabbitMQ:
   The BusinessUnitIDn + TableIDn combination can be the topic.';
 
 -- Lista los datos de la tabla
-SELECT * FROM `systemsdb`.`ArtSysBaseElements_Mir`;
+SELECT * FROM `articlesdb`.`ArtSysBaseElements_Mir`;
