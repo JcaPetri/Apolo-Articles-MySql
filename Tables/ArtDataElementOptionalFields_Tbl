@@ -56,7 +56,7 @@ CREATE TABLE `ArtDataElementOptionalFields_Tbl` (
 	  KEY `ID_AdoIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID alway must be indexed.',
 	  KEY `IDNum_AdoIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
 		KEY `TblFieldDataElem_AdoIdx` (`TableFieldIDn` ASC, `DataElementIDn` ASC) VISIBLE COMMENT 'To optimize the search of one element for a Tables.',
-    CONSTRAINT `TableFieldIDn_AdoRel` FOREIGN KEY (`TableFieldIDn`) REFERENCES `articlesdb`.`ArtSysBaseElements_Mir` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT `TableFieldIDn_AdoRel` FOREIGN KEY (`TableFieldIDn`) REFERENCES `articlesdb`.`ArtSysBaseElements_Mir` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE,
 	  CONSTRAINT `DataElementIDn_AdoRel` FOREIGN KEY (`DataElementIDn`) REFERENCES `articlesdb`.`ArtDataElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB 
 	AUTO_INCREMENT=0 
