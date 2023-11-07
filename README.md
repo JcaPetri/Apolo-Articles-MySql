@@ -235,7 +235,6 @@ Detailed explanation of each table.
 					DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
 					TableHistory		-->	The TableHistory contain then change history of each column.			
 
-
 		ArtDataElementOptionalFields_Tbl	
 			Contains the Optional Properties of the Data Elements records.
 			This optional property is used to set up a property for a specific element. The others elements do not have this property assigned.
