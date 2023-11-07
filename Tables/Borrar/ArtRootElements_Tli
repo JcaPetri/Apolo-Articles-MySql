@@ -1,5 +1,5 @@
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
--- Create the ArtRootElements_Tli table
+-- Create the ArtRootElements_Tli tabBle
 /* This Is a List Table that contains the other element of the system. Enable the IDNum element to a Microservice.
 The key for each record:
 	ID		--> is the uniqueidentifier auto generated.
