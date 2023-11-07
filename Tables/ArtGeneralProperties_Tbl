@@ -67,6 +67,7 @@ CREATE TABLE `ArtGeneralProperties_Tbl` (
 	  KEY `IDNum_AgpIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
 		KEY `ArtGenProGroup_AgpIdx` (`ArtGeneralPropertyIDn` ASC, `GroupIDn` ASC) VISIBLE COMMENT 'To optimize the search of one element for a Group Tables.',
 	  CONSTRAINT `ArtGeneralPropertyIDn_AgpRel` FOREIGN KEY (`ArtGeneralPropertyIDn`) REFERENCES `articlesdb`.`ArtDataElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
+		-- In the ArtdDataElements_Tbl in the ArtGeneralProperty Scope you create this value.
 ) ENGINE=InnoDB 
 	AUTO_INCREMENT=0 
 	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
