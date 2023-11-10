@@ -51,7 +51,7 @@ Name: system / articles / persons / users
 	 		Next, the Apolo Microcervices Structure are defined by:
 		 		SystemsMicroSs
 		   			This microservices has the information about:
-						The main dictionary of the software.
+						The main elements of the software.
 	  					The software structure, in java and databases, entities, tables, datatypes, etc.
 	  					The companies and theirs structures.
 						The microservices and the relations with the companies and business units.
@@ -60,7 +60,6 @@ Name: system / articles / persons / users
 			  			Java project called ApoloSystemsMicroSs, this a restfull webservice java project.
 			  			MySql database called SystemsDB, this contain the permanent information of all the System software.
 			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
-				 						
 				UsersMicroSs
 		   			This microservices has the information about:
 						The users, groups of users.
@@ -103,15 +102,17 @@ Structure are as follows:
 			-- ArtSysBaseElementComments_Tbl	--> Contains the MIRROR of the comments/details/explains of each record of the diccionary.
 			-- ArtSysRootElements_Tli	--> This is the MIRROR of the List Table that contains the other element of the system. Enable the IDNum element to a Microservice and BusinessUnit.
       -- ArtSysCompanies_Mir  --> Contain the MIRROR of the SysCompanies_Tbl information.
-	Used to create the main elements
+	Used to create the main elements (In this tables we create all tables of the Microservices)
 		ArtDataElements_Tbl	--> Contains the diccionary of all articles data elements of the Microservice.
 		ArtDataElementLanguages_Tbl	--> Contains the meaning of the diccionary in another languages than the default.
 		ArtDataElementComments_Tbl	--> Contains one or more comments/details/explains of each record of the diccionary.
     ArtDataElementOptionalFields_Tbl	--> Contains the optional fields/columns of the data elements.
+	Used to create a table which has an specific subject.
+ 
 
-	Used to create the general properties of the articles. Before create an article, it is necesary create an ArtGeneralProperty.
+ 	Used to create the general properties of the articles. Before create an article, it is necesary create an ArtGeneralProperty.
     ArtGeneralProperties_Tbl	--> Contains the properties of each general information.
-    ArtGeneralPropertyOptionalFields_Tbl	--> Contains the optional fields/columns of the general property.
+    	--	ArtGeneralPropertyOptionalFields_Tbl	--> Contains the optional fields/columns of the general property.
   Used to create the articles
 		Articles_Tbl	--> Contains the articles informations. This table has the article for each Microservice. 
     ArticleOptionalFields_Tbl  --> Contains the optional fields/columns of the articles informations.
