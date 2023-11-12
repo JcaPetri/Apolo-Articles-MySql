@@ -1,0 +1,32 @@
+USE `articlesdb`;
+CREATE  OR REPLACE VIEW `ArtDataElementOptionalFields_Vie` AS
+SELECT deof.`IDNum`,
+    deof.`ID`,
+    deof.`DataElementIDn`,
+    de01.IDName 'DataElement',
+    deof.`TableFieldIDn`,
+	bem01.IDName 'TableField',
+    deof.`FieldValueTypeIDn`,
+ 	bem02.IDName 'FieldValueType',
+    deof.`FieldValue`,
+    ifnull(bem03.IDName, deof.`FieldValue`) 'FieldValue',
+    deof.`StateIDn`,
+   	bem04.IDName 'State',
+    deof.`CreatedByIDn`,
+    deof.`LastModifiedByIDn`,
+    deof.`OwnerIDn`,
+    deof.`DateCreated`,
+    deof.`DateTimeStamp`,
+    deof.`TzNameIDn`,
+   	bem05.IDName 'TzName',
+    deof.`TzOffset`,
+    deof.`TableHistory`
+FROM articlesdb.ArtDataElementOptionalFields_Tbl deof
+    JOIN articlesdb.ArtDataElements_Tbl de01 ON deof.DataElementIDn = de01.IDNum
+	JOIN articlesdb.ArtSysBaseElements_Mir bem01 ON deof.TableFieldIDn = bem01.IDNum
+	JOIN articlesdb.ArtSysBaseElements_Mir bem02 ON deof.FieldValueTypeIDn = bem02.IDNum
+    LEFT JOIN articlesdb.ArtSysBaseElements_Mir bem03 ON deof.FieldValue = bem03.IDNum
+	JOIN articlesdb.ArtSysBaseElements_Mir bem04 ON deof.StateIDn = bem04.IDNum
+	JOIN articlesdb.ArtSysBaseElements_Mir bem05 ON deof.TzNameIDn = bem05.IDNum    
+ORDER BY deof.`DataElementIDn`, deof.`TableFieldIDn`
+;;
