@@ -104,14 +104,19 @@ Structure are as follows:
       -- ArtSysCompanies_Mir  --> Contain the MIRROR of the SysCompanies_Tbl information.
 	Used to create the main elements (In this tables we create all tables of the Microservices)
 		ArtDataElements_Tbl	--> Contains the diccionary of all articles data elements of the Microservice.
+    ArtDataElementOptionalFields_Tbl	--> Contains the optional fields/columns of the data elements.
 		ArtDataElementLanguages_Tbl	--> Contains the meaning of the diccionary in another languages than the default.
 		ArtDataElementComments_Tbl	--> Contains one or more comments/details/explains of each record of the diccionary.
-    ArtDataElementOptionalFields_Tbl	--> Contains the optional fields/columns of the data elements.
 	Used to create a table which has an specific subject.
- 
 
- 	Used to create the general properties of the articles. Before create an article, it is necesary create an ArtGeneralProperty.
-    ArtGeneralProperties_Tbl	--> Contains the properties of each general information.
+ Virtual Tables
+ 	This types of tables are inside of the tables ArtDataElements_Tbl and ArtDataElementOptionalFields_Tbl. You diferences each table with the ScopeIDn. 
+		ArtGeneralProperties_Tbl	--> Contains the properties of the article general information.
+																  You save the information in the ArtDataElements_Tbl and the ArtDataElementOtherFields_Tbl, because this table is virtual.
+																	To define how to proceed with each field, the system take the information from the SysEntityStructures_Tbl. This table has information about the field like if the field could be null, the field data type, and the target table. (TargetTableIDn represent the real table where the data are saved). 
+																	
+				Important: Before create an article, it is necesary create an ArtGeneralProperty.
+
     	--	ArtGeneralPropertyOptionalFields_Tbl	--> Contains the optional fields/columns of the general property.
   Used to create the articles
 		Articles_Tbl	--> Contains the articles informations. This table has the article for each Microservice. 
