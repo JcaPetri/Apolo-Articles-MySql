@@ -1,0 +1,108 @@
+-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+-- Create the ArtSysEntityStructures_Mir table
+/*Contains the Mirror of the SysBaseElements_Tbl form ApoloSystems.
+The user never changed this table, it has been changed throw Kafka from the ApoloSystem.
+This table contain the elements of all System Microservice tables.
+To determine what a code means, you should consult this table.
+In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
+To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
+Modification Rules:
+	You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
+	Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
+	If you want to change the code and it is in many places, the system must generate another code for the new value
+	To change this value, it must be done by the administrator. 
+	It is best to never change it.
+Kafka/RabbitMQ:
+  The BusinessUnitIDn + TableIDn combination can be the topic.
+
+
+Contains the system structure. In this table you build the tables and java entities structures, with thiers column and fields.
+You must define all the properties of the entities.
+The key for each record:
+	ID		--> is the uniqueidentifier auto generated.
+	IDNum	--> is the autoincrement number auto generated.
+The unique Key is the union of:
+	FieldIDn 		--> The FieldIDn is the IDNum of the field/column of the entity. Link with the SysBaseElements_Tbl.
+	EntityIDn 		--> The EntityIDn is the IDNum of the entity. Link with the SysBaseElements_Tbl.
+	MicroserviceIDn --> the IdNum of the Microservice that the Field and Entity belong. When is equal System, all microservices hava access to them.
+	When an entity is selected from the Entity_Tbl, the Microservice is set, this parameter define the possible fields to be selected.
+Common Field/Columns for all tables
+	The objective of these are to store critical information for the system and the record history.
+		StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
+		CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
+		LastModifiedByIDn	--> The LastModifiedByIDn is the IDNum of the last user who modified the record.
+		OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
+		DateCreated			--> The DateCreated is the record creation datetime UTC.
+		DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
+		TableHistory		-->	The TableHistory contain then change history of each column.
+*/
+
+-- #########################################################################################################################################################################################
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- First Delete the table ArtSysEntityStructures_Mir if Exits, but first you must to altere the tables that have a referenced foreign key
+USE systemsdb;
+-- First you must to delete the Foreing Key Constraint;
+-- The referenced baseelement_tbl Tables:
+ALTER TABLE `systemsdb`.`SysEntityStructureFieldProperties_Tbl`  DROP FOREIGN KEY `EntityStructureIDn_Rel`;
+ALTER TABLE `systemsdb`.`SysEntityStructureFieldDefaultValues_Tbl`  DROP FOREIGN KEY `EntityStructureIDn_Rel`;
+
+-- #########################################################################################################################################################################################
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Second create the ArtSysEntityStructures_Mir table
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Table: public.ArtSysEntityStructures_Mir
+DROP TABLE IF EXISTS `systemsdb`.`ArtSysEntityStructures_Mir`;
+
+CREATE TABLE `ArtSysEntityStructures_Mir` (
+	  `IDNum` int NOT NULL AUTO_INCREMENT COMMENT 'The IDNum is the autoincrement number', 
+	  `ID` char(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The ID is the uniqueidentifier auto generated V4', 
+    `FieldIDn` int NOT NULL COMMENT 'The FieldIDn is the IDNum of the field/column of the entity. Link with the SysEntityFields_Tbl.',
+	  `EntityIDn` integer NOT NULL COMMENT 'The EntityIDn is the IDNum of the entity. Link with the SysEntities_Tbl. The entity is set to a microservice and business unit.',
+    `MicroserviceIDn` int NOT NULL COMMENT 'The MicroServiceIDn is the IdNum of the Microservice to which the IDName is assigned.',
+	  `DataTypeIDn` integer NOT NULL COMMENT 'The DataTypeIDn is the IDNum of the type of data that you can enter in the field. Link with the SysBaseElements_Tbl.',
+    `FieldOrder` integer NOT NULL COMMENT 'The FieldOrder is an ascendent number to order the fields/columns. If the user don`t define, the system insert an autonumeric increment number.',
+    `AdmitDefaultValue` boolean NOT NULL COMMENT 'The AdmitDefaultValue, if the value is 1 the field admit the default value, otherwise not. This is to facilitate data insertion.',
+    `FieldNotNull` boolean NOT NULL COMMENT 'The FieldNotNull, if the value is 1 the field can`t be null, otherwise the null value is allowed.',
+	  `StateIDn` smallint NOT NULL COMMENT 'The StatedIDn define if the record is enable or not.',
+	  `CreatedByIDn` int NOT NULL COMMENT 'The CreatedByIDn is the IdNum of the user who created the record.',
+	  `LastModifiedByIDn` int NOT NULL COMMENT 'The LastModifiedByIDn is the IdNum of the last user who modified the record.',
+	  `OwnerIDn` int NOT NULL COMMENT 'The OwnerIDn is the IdNum of the record owner.',
+	  `DateCreated` datetime NOT NULL COMMENT 'The DateCreated is the record creation date with UTC.',
+	  `DateTimeStamp` timestamp NOT NULL COMMENT 'The DateTimeStamp is the date of the last modification of the record with UTC.',
+ 	  `TzNameIDn` smallint NOT NULL COMMENT 'The IDNum of the TimeZone',				
+	  `TzOffset` smallint NOT NULL COMMENT 'The diferences between ZeroTimeZone and the TimeZone where the record is created or updated.',					
+	  `TableHistory` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT 'The TableHistory contain then change history of each column.',
+	  PRIMARY KEY `IDNum_ASesPrikey` (`IDNum`) COMMENT 'The sequence ArtSysEntityStructures_Mir generate the nextval',
+	  UNIQUE KEY `ID_ASesUnique` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The uniqueidentifier.',
+	  UNIQUE KEY `IDNum_ASesUnique` (`IDNum`) COMMENT 'The IDNum must be unique.',
+	  UNIQUE KEY `IDnFieldEntMicro_ASefUnique` (`FieldIDn`,`EntityIDn`,`MicroserviceIDn`) COMMENT 'The Field must be unique for one Entity, Microservice.',
+	  KEY `ID_ASefIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID must always be indexed.',
+    KEY `IDNum_ASefIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
+    KEY `FieldEntMicrBusUnit_ASefIdx` (`FieldIDn` ASC, `EntityIDn` ASC, `MicroserviceIDn` ASC) VISIBLE COMMENT 'To optimize the search of one fields for an Entity.',
+	  CONSTRAINT `FieldIDn_ASefRel` FOREIGN KEY (`FieldIDn`) REFERENCES `systemsdb`.`ArtSysBaseElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE,
+	  CONSTRAINT `EntityIDn_ASefRel` FOREIGN KEY (`EntityIDn`) REFERENCES `systemsdb`.`ArtSysBaseElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE,
+	  CONSTRAINT `MicroserviceIDn_ASefRel` FOREIGN KEY (`MicroserviceIDn`) REFERENCES `systemsdb`.`ArtSysBaseElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB 
+	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
+    COMMENT='Contains the system structure. In this table you build the tables and java entities structures, with thiers column and fields.
+You must define all the properties of the entities.
+The key for each record:
+	ID		--> is the uniqueidentifier auto generated.
+	IDNum	--> is the autoincrement number auto generated.
+The unique Key is the union of:
+	FieldIDn 		--> The FieldIDn is the IDNum of the field/column of the entity. Link with the SysBaseElements_Tbl.
+	EntityIDn 		--> The EntityIDn is the IDNum of the entity. Link with the SysBaseElements_Tbl.
+	MicroserviceIDn --> the IdNum of the Microservice that the Field and Entity belong. When is equal System, all microservices hava access to them.
+	When an entity is selected from the Entity_Tbl, the Microservice is set, this parameter define the possible fields to be selected.
+Common Field/Columns for all tables
+	The objective of these are to store critical information for the system and the record history.
+		StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
+		CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
+		LastModifiedByIDn	--> The LastModifiedByIDn is the IDNum of the last user who modified the record.
+		OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
+		DateCreated			--> The DateCreated is the record creation datetime UTC.
+		DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
+		TableHistory		-->	The TableHistory contain then change history of each column.';
+
+-- Lista los datos de la tabla
+SELECT * FROM `systemsdb`.`ArtSysEntityStructures_Mir`;
