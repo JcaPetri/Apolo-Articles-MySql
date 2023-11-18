@@ -79,30 +79,25 @@ CREATE TABLE `ArtSysEntityStructures_Mir` (
 	  KEY `ID_ASefIdx` (`ID`) /*!80000 INVISIBLE */ COMMENT 'The ID must always be indexed.',
     KEY `IDNum_ASefIdx` (`IDNum`) /*!80000 INVISIBLE */ COMMENT 'The IDNum must always be indexed.',
     KEY `FieldEntMicrBusUnit_ASefIdx` (`FieldIDn` ASC, `EntityIDn` ASC, `MicroserviceIDn` ASC) VISIBLE COMMENT 'To optimize the search of one fields for an Entity.',
-	  CONSTRAINT `FieldIDn_ASefRel` FOREIGN KEY (`FieldIDn`) REFERENCES `systemsdb`.`ArtSysBaseElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE,
-	  CONSTRAINT `EntityIDn_ASefRel` FOREIGN KEY (`EntityIDn`) REFERENCES `systemsdb`.`ArtSysBaseElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE,
-	  CONSTRAINT `MicroserviceIDn_ASefRel` FOREIGN KEY (`MicroserviceIDn`) REFERENCES `systemsdb`.`ArtSysBaseElements_Tbl` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
+	  CONSTRAINT `FieldIDn_ASefRel` FOREIGN KEY (`FieldIDn`) REFERENCES `articlesdb`.`ArtSysBaseElements_Mir` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE,
+	  CONSTRAINT `EntityIDn_ASefRel` FOREIGN KEY (`EntityIDn`) REFERENCES `articlesdb`.`ArtSysBaseElements_Mir` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE,
+	  CONSTRAINT `MicroserviceIDn_ASefRel` FOREIGN KEY (`MicroserviceIDn`) REFERENCES `articlesdb`.`ArtSysBaseElements_Mir` (`IDNum`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB 
 	DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin 
-    COMMENT='Contains the system structure. In this table you build the tables and java entities structures, with thiers column and fields.
-You must define all the properties of the entities.
-The key for each record:
-	ID		--> is the uniqueidentifier auto generated.
-	IDNum	--> is the autoincrement number auto generated.
-The unique Key is the union of:
-	FieldIDn 		--> The FieldIDn is the IDNum of the field/column of the entity. Link with the SysBaseElements_Tbl.
-	EntityIDn 		--> The EntityIDn is the IDNum of the entity. Link with the SysBaseElements_Tbl.
-	MicroserviceIDn --> the IdNum of the Microservice that the Field and Entity belong. When is equal System, all microservices hava access to them.
-	When an entity is selected from the Entity_Tbl, the Microservice is set, this parameter define the possible fields to be selected.
-Common Field/Columns for all tables
-	The objective of these are to store critical information for the system and the record history.
-		StatedIDn 			--> The StatedIDn is the IDNum that define if the record is enable or not.
-		CreatedByIDn		--> The CreatedByIDn is the IDNum of the user who created the record.
-		LastModifiedByIDn	--> The LastModifiedByIDn is the IDNum of the last user who modified the record.
-		OwnerIDn			--> The OwnerIDn is the IDNum of the record owner.
-		DateCreated			--> The DateCreated is the record creation datetime UTC.
-		DateTimeStamp		--> The DateTimeStamp is the datetime UTC of the last modification.
-		TableHistory		-->	The TableHistory contain then change history of each column.';
+    COMMENT='Contains the Mirror of the SysBaseElements_Tbl form ApoloSystems.
+The user never changed this table, it has been changed throw Kafka from the ApoloSystem.
+This table contain the elements of all System Microservice tables.
+To determine what a code means, you should consult this table.
+In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
+To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
+Modification Rules:
+	You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
+	Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
+	If you want to change the code and it is in many places, the system must generate another code for the new value
+	To change this value, it must be done by the administrator. 
+	It is best to never change it.
+Kafka/RabbitMQ:
+  The BusinessUnitIDn + TableIDn combination can be the topic.';
 
 -- Lista los datos de la tabla
-SELECT * FROM `systemsdb`.`ArtSysEntityStructures_Mir`;
+SELECT * FROM `articlesdb`.`ArtSysEntityStructures_Mir`;
