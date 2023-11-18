@@ -1,7 +1,7 @@
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
--- Create the ArtDataElementOptionalFields_Tbl table
-/*Contains the Optional Properties of the Data Elements records.
-This optional property is used to set up a property for a specific element. The others elements do not have this property assigned.
+-- Create the ArtDataElementOtherFields_Tbl table
+/*Contains the Other Properties of the Data Elements records.
+This other property, wich could be optional or not, is used to set up a property for a specific element. The others elements do not have this property assigned.
 In each record you specify the property and the value it assumes for each item.
 The key for each record:
   ID		--> is the uniqueidentifier auto generated.
@@ -24,16 +24,16 @@ Common Field/Columns for all tables
 
 -- #########################################################################################################################################################################################
 -- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Delete the table ArtDataElementOptionalFields_Tbl if Exits, but first you must to altere the tables that have a referenced foreign key
+-- Delete the table ArtDataElementOtherFields_Tbl if Exits, but first you must to altere the tables that have a referenced foreign key
 USE articlesdb;
 -- First you must to delete the Foreing Key Constraint;
--- The referenced ArtDataElementOptionalFields_Tbl Tables:
+-- The referenced ArtDataElementOtherFields_Tbl Tables:
 -- ALTER TABLE `articlesdb`.`SysMicroservices_Tbl`  DROP FOREIGN KEY `MicroserviceIDn_Rel`;
 
 -- After deleted the referenced, you can delete the table
-DROP TABLE IF EXISTS `articlesdb`.`ArtDataElementOptionalFields_Tbl`;
+DROP TABLE IF EXISTS `articlesdb`.`ArtDataElementOtherFields_Tbl`;
 
-CREATE TABLE `ArtDataElementOptionalFields_Tbl` (
+CREATE TABLE `ArtDataElementOtherFields_Tbl` (
 	  `IDNum` int NOT NULL AUTO_INCREMENT COMMENT 'The IDNum is the autoincrement number', 
 	  `ID` char(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The ID is the uniqueidentifier auto generated V4', 
     `TableFieldIDn` integer NOT NULL COMMENT 'The TableFieldIDn is the IDNum of the field property. Link with the System database - SysTableFields.',
@@ -49,7 +49,7 @@ CREATE TABLE `ArtDataElementOptionalFields_Tbl` (
  	  `TzNameIDn` smallint NOT NULL COMMENT 'The IDNum of the TimeZone',				
 	  `TzOffset` smallint NOT NULL COMMENT 'The diferences between ZeroTimeZone and the TimeZone where the record is created or updated.',					
 	  `TableHistory` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT 'The TableHistory contain then change history of each column.',
-	  PRIMARY KEY `ID_AdoKey` (`IDNum`) COMMENT 'The sequence ArtDataElementOptionalFields_Tbl_seq generate the nextval',
+	  PRIMARY KEY `ID_AdoKey` (`IDNum`) COMMENT 'The sequence ArtDataElementOtherFields_Tbl_seq generate the nextval',
 	  UNIQUE KEY `ID_AdoUni` (`ID`) /*!80000 INVISIBLE */ COMMENT 'Is the uniqueidentifier.',
     UNIQUE KEY `IDNum_AdoUni` (`IDNum`) COMMENT 'The IDNum must be unique.',
 		UNIQUE KEY `TblFieldDataElem_AdoUni` (`TableFieldIDn`, `DataElementIDn`) COMMENT 'The TableField must be unique for a DataElementIDn.',
@@ -84,13 +84,13 @@ Common Field/Columns for all tables
     TableHistory		-->	The TableHistory contain then change history of each column.';
 
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
--- Create the Trigger Before Insert - ArtDataElementOptionalFields_Tbl
+-- Create the Trigger Before Insert - ArtDataElementOtherFields_Tbl
 USE articlesdb;
-DROP TRIGGER IF EXISTS `articlesdb`.`ArtDataElementOptionalFieldsBeforeInsert_Trg`;
+DROP TRIGGER IF EXISTS `articlesdb`.`ArtDataElementOtherFieldsBeforeInsert_Trg`;
 DELIMITER $$
 USE `articlesdb`$$
 -- DEFINER=`root`@`localhost` -- When create Trigger in localhost, must add Definer between CREATE and TRIGGER key word.
-CREATE TRIGGER `ArtDataElementOptionalFieldsBeforeInsert_Trg` BEFORE INSERT ON `ArtDataElementOptionalFields_Tbl` FOR EACH ROW BEGIN
+CREATE TRIGGER `ArtDataElementOtherFieldsBeforeInsert_Trg` BEFORE INSERT ON `ArtDataElementOtherFields_Tbl` FOR EACH ROW BEGIN
 	-- In the case, which the request do not give this value, MySql created it.
 	-- Set the ID uniqueidentifier, IDCode, DateCreated and DateTimeStamp
 	IF new.ID IS NULL OR new.ID = '' THEN
@@ -102,15 +102,15 @@ END$$
 DELIMITER ;
 
 -- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
--- Create the Trigger Before Update - ArtDataElementOptionalFields_Tbl
+-- Create the Trigger Before Update - ArtDataElementOtherFields_Tbl
 -- en caso que desde Java no pasen la informacion de estos campos,
 -- establece el valor del DateTimeStamp, TableHistory creando el historico de cada registro
 USE articlesdb;
-DROP TRIGGER IF EXISTS `articlesdb`.`ArtDataElementOptionalFieldsBeforeUpdate_Trg`;
+DROP TRIGGER IF EXISTS `articlesdb`.`ArtDataElementOtherFieldsBeforeUpdate_Trg`;
 DELIMITER $$
 USE `articlesdb`$$
 -- DEFINER=`root`@`localhost` -- When create Trigger in localhost, must add Definer between CREATE and TRIGGER key word.
-CREATE TRIGGER `ArtDataElementOptionalFieldsBeforeUpdate_Trg` BEFORE UPDATE ON `ArtDataElementOptionalFields_Tbl` FOR EACH ROW BEGIN
+CREATE TRIGGER `ArtDataElementOtherFieldsBeforeUpdate_Trg` BEFORE UPDATE ON `ArtDataElementOtherFields_Tbl` FOR EACH ROW BEGIN
 	DECLARE v_TableHistory text;
 	DECLARE v_TableHistoryOld text;
 	SET new.DateTimeStamp = ifnull(new.DateTimeStamp,CURRENT_TIMESTAMP);
@@ -147,4 +147,4 @@ END$$
 DELIMITER ;
 
 -- Lista los datos de la tabla
-SELECT * FROM `articlesdb`.`ArtDataElementOptionalFields_Tbl`;
+SELECT * FROM `articlesdb`.`ArtDataElementOtherFields_Tbl`;
