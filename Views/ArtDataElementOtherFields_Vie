@@ -1,5 +1,5 @@
 USE `articlesdb`;
-CREATE  OR REPLACE VIEW `ArtDataElementOptionalFields_Vie` AS
+CREATE  OR REPLACE VIEW `ArtDataElementOtherFields_Vie` AS
 SELECT deof.`IDNum`,
     deof.`ID`,
     deof.`DataElementIDn`,
@@ -20,7 +20,7 @@ SELECT deof.`IDNum`,
    	bem05.IDName 'TzName',
     deof.`TzOffset`,
     deof.`TableHistory`
-FROM articlesdb.ArtDataElementOptionalFields_Tbl deof
+FROM articlesdb.ArtDataElementOtherFields_Tbl deof
     JOIN articlesdb.ArtDataElements_Tbl de01 ON deof.DataElementIDn = de01.IDNum
 	JOIN articlesdb.ArtSysBaseElements_Mir bem01 ON deof.TableFieldIDn = bem01.IDNum
 	JOIN articlesdb.ArtSysBaseElements_Mir bem02 ON deof.FieldValueTypeIDn = bem02.IDNum
