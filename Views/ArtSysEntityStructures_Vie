@@ -1,0 +1,42 @@
+-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+-- Create the ArtSysEntityStructures_Vie View
+/* Show the ArtSysEntityStructures_Mir table
+After the IDn of each field, the view show its meaning.
+*/
+-- #########################################################################################################################################################################################
+
+USE `articlesdb`;
+CREATE  OR REPLACE VIEW `ArtSysEntityStructures_Vie` AS
+    SELECT 
+        `ses`.`IDNum` AS `IDNum`,
+        `ses`.`ID` AS `ID`,
+        `ses`.`MicroserviceIDn` AS `MicroserviceIDn`,
+        `be03`.`IDName` AS `Microservice`,
+        `ses`.`EntityIDn` AS `EntityIDn`,
+        `be02`.`IDName` AS `Entity`,
+        `ses`.`FieldIDn` AS `FieldIDn`,
+        `be01`.`IDName` AS `Field`,
+        `ses`.`DataTypeIDn` AS `DataTypeIDn`,
+        `be04`.`IDName` AS `DataType`,
+        `ses`.`FieldOrder` AS `FieldOrder`,
+        `ses`.`AdmitDefaultValue` AS `AdmitDefaultValue`,
+        `ses`.`FieldNotNull` AS `FieldNotNull`,
+        `ses`.`StateIDn` AS `StateIDn`,
+        `be05`.`IDName` AS `State`,
+        `ses`.`CreatedByIDn` AS `CreatedByIDn`,
+        `ses`.`LastModifiedByIDn` AS `LastModifiedByIDn`,
+        `ses`.`OwnerIDn` AS `OwnerIDn`,
+        `ses`.`DateCreated` AS `DateCreated`,
+        `ses`.`DateTimeStamp` AS `DateTimeStamp`,
+        `ses`.`TzNameIDn` AS `TzNameIDn`,
+        `be06`.`IDName` AS `TzName`,
+        `ses`.`TzOffset` AS `TzOffset`,
+        `ses`.`TableHistory` AS `TableHistory`
+    FROM
+        `ArtSysEntityStructures_Mir` `ses`
+        JOIN `ArtSysBaseElements_Mir` `be01` ON `ses`.`FieldIDn` = `be01`.`IDNum`
+        JOIN `ArtSysBaseElements_Mir` `be02` ON `ses`.`EntityIDn` = `be02`.`IDNum`
+        JOIN `ArtSysBaseElements_Mir` `be03` ON `ses`.`MicroserviceIDn` = `be03`.`IDNum`
+        JOIN `ArtSysBaseElements_Mir` `be04` ON `ses`.`DataTypeIDn` = `be04`.`IDNum`
+        JOIN `ArtSysBaseElements_Mir` `be05` ON `ses`.`StateIDn` = `be05`.`IDNum`
+        JOIN `ArtSysBaseElements_Mir` `be06` ON `ses`.`TzNameIDn` = `be06`.`IDNum`;
