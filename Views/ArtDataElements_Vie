@@ -1,0 +1,47 @@
+-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+-- Create the ArtDataElements_Vie View
+/* Show the ArtDataElements_Tbl
+After the IDn of each field, the view show its meaning.
+*/
+-- #########################################################################################################################################################################################
+
+USE `articlesdb`;
+CREATE  OR REPLACE VIEW `ArtDataElements_Vie` AS
+SELECT `ade`.`IDNum`,
+    `ade`.`ID`,
+    `ade`.`IDName`,
+    `ade`.`FieldStructureIDn`,
+	`bem01`.`IDName` 'FieldStructure',
+    `ade`.`ScopeIDn`,
+	`bem02`.`IDName` 'Scope',    
+    `ade`.`GroupIDn`,
+	`de01`.`IDName` 'Group',    
+    `ade`.`LanguageIDn`,
+	`bem04`.`IDName` 'Language',        
+    `ade`.`IDCode`,
+    `ade`.`DefinitionIDn`,
+	`bem05`.`IDName` 'Definition',        
+    `ade`.`InformationTypeIDn`,
+	`bem06`.`IDName` 'InformationType',        
+    `ade`.`IDIsUsed`,
+    `ade`.`StateIDn`,
+	`bem07`.`IDName` 'State',        
+    `ade`.`CreatedByIDn`,
+    `ade`.`LastModifiedByIDn`,
+    `ade`.`OwnerIDn`,
+    `ade`.`DateCreated`,
+    `ade`.`DateTimeStamp`,
+    `ade`.`TzNameIDn`,
+	`bem08`.`IDName` 'TzName',        
+    `ade`.`TzOffset`,
+    `ade`.`TableHistory`
+FROM `articlesdb`.`ArtDataElements_Tbl` `ade`
+	LEFT JOIN `articlesdb`.`ArtSysBaseElements_Mir` `bem01` ON `ade`.`FieldStructureIDn` = `bem01`.`IDNum`
+	LEFT JOIN `articlesdb`.`ArtSysBaseElements_Mir` `bem02` ON `ade`.`ScopeIDn` = `bem02`.`IDNum`    
+	LEFT JOIN `articlesdb`.`ArtDataElements_Tbl` `de01` ON `ade`.`GroupIDn` = `de01`.`IDNum`        
+	LEFT JOIN `articlesdb`.`ArtSysBaseElements_Mir` `bem04` ON `ade`.`LanguageIDn` = `bem04`.`IDNum`        
+	LEFT JOIN `articlesdb`.`ArtSysBaseElements_Mir` `bem05` ON `ade`.`DefinitionIDn` = `bem05`.`IDNum`        
+	LEFT JOIN `articlesdb`.`ArtSysBaseElements_Mir` `bem06` ON `ade`.`InformationTypeIDn` = `bem06`.`IDNum`        
+	LEFT JOIN `articlesdb`.`ArtSysBaseElements_Mir` `bem07` ON `ade`.`StateIDn` = `bem07`.`IDNum`        
+	LEFT JOIN `articlesdb`.`ArtSysBaseElements_Mir` `bem08` ON `ade`.`TzNameIDn` = `bem08`.`IDNum`        
+;;
