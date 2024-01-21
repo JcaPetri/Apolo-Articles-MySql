@@ -4,6 +4,7 @@ CREATE DATABASE `articlesdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8
 Main Structure of all Microservices
 Group: com.apolo
 Name: system / articles / persons / users
+
 ## System Microservice
 **Definitions:**
 Contains the system structure of all the software. In this module you need to create all the databases and java classes, enums, interfaces, entities, etc.
