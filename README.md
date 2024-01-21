@@ -178,30 +178,43 @@ You save the information in the ArtDataElements_Tbl and the ArtDataElementOtherF
 - Used to create multiples tables
     - ***ArtRootElements_Tli*** --> This is a List Table that contains the other data element of the system. Enable the IDNum element to a Microservice.
 
-========================================================================================================================================================================================
-Detailed explanation of each table.
- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Used to create the Mirrors elements
-		ArtSysBaseElements_Mir
-			Contains the Mirror of the SysBaseElements_Tbl form ApoloSystems.
-			The user never changed this table, it has been changed throw Kafka from the ApoloSystem.
-			This tabla has the diccionary of all system elements used by this Microservice.
-			To determine what a code means, you should consult this table.
-			In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
-			To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
-			Important: when you create the element/object in this tabel, this element does not exits for the software. This table is like a dictionary.
-						Only exist when you create the code in the specific table.
-				Example: the pampa article is created in the dictionary, but it does not exist until it is created in the Articles table.
-			Modification Rules:
-				You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
-				Warning: If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
-				If you want to change the code and it is in many places, the system must generate another code for the new value
-				To change this value, it must be done by the administrator. 
-				It is best to never change it.
-			Kafka/RabbitMQ:
-			  The BusinessUnitIDn + TableIDn combination can be the topic.
+---
+## Detailed explanation of each table.
+~~~
+The Mirror tables are used to create the Mirrors elements from other microservices databases.
+~~~
+
+- ***ArtSysBaseElements_Mir***
+
+Contains the Mirror of the SysBaseElements_Tbl form ApoloSystems.
+
+This tabla has the diccionary of all system elements used by this Microservice.
+
+To determine what a code means, you should consult this table.
+
+> [!NOTE]
+> The user never changed this table, it has been changed throw Kafka from the ApoloSystem.
+>
+> In order for the same IDName word to have different meanings depending on its use, it is defined for a Scope, BusinessUnit and Language.
+> To respect all the rules the unique value must be the combination of: Name/Scope/BusinessUnit/Language.
+
+> ***Modification Rules:***
+> You can change the Name if there is a spelling error. Example you have an spelling error in a invoce and must be invoice.
+
+> [!CAUTION]
+ + If I change the code that represents the word Invoice and it is an afip receipt. And I put food, everywhere the code is, food will start to appear.
+ +  If you want to change the code and it is in many places, the system must generate another code for the new value
+ + To change this value, it must be done by the administrator.
+
+> [!WARNING]
+> ***It is best to never change it.***
+
+Kafka/RabbitMQ:
+     
+     The BusinessUnitIDn + TableIDn combination can be the topic.
  
- 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ ~~~
+	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	Used to create the main elements
 		ArtDataElements_Tbl
 			Contains the elements of all Microservice tables.
