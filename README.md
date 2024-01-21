@@ -4,127 +4,179 @@ CREATE DATABASE `articlesdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8
 Main Structure of all Microservices
 Group: com.apolo
 Name: system / articles / persons / users
+## System Microservice
+**Definitions:**
+Contains the system structure of all the software. In this module you need to create all the databases and java classes, enums, interfaces, entities, etc.
 
-==============================================================================================================================================================================
-#### Importan Definitions:
-	System Microservice contains the system structure of all the software. In this module you need to create all the databases and java classes, enums, interfaces, entities, etc.
-	The main tables of this module will be in the other databases such as mirrors. 
- 	These mirror tables will be updated via Kafka topics, but for the only record that are used by this Articles Microservices.
-	With this mechanism each microservice becames independent of the others. Example: SysCompanies_Mir, SysBusinessUnits_Mir, etc.
-	One important thing, is you make a mirror only of the records that need in the other microservice, not all the records that exists in the System Microservice.
-	The are three types of tables.
-		Tli is the list table, in which only enable the IDNum for one Microservice and BusinessUnit. This kind of table do not have any relation with others.
-		Tbl is the normal table, where stores the specific software data. This kind of table have relation with others tables of the same kind.
-  				Tables with their owns ID and IDNum. These are the common tables.
-	  			Tables without owns ID and IDNum, It is generated in ArtDataElements_Tbl.
-	  				Microservice_Tbl has not their own ID and IDNum.
-    	Mir is a mirror table, theses tables are updated throw kafka.
-	All tables have the key for each record:
-		ID		--> is the uniqueidentifier auto generated.
-		IDNum	--> is the autoincrement number auto generated.
+The main tables of this module will be in the other databases such as mirrors, but only the data that their need. These mirror tables will be updated via Kafka topics.
+> [!IMPORTANT]
+> With this mechanism each microservice becames independent of the others. Example: MirSysCompanies, MirSysBusinessUnits, etc.
+One important thing, is you make a mirror only of the records that need in the other microservice, not all the records that exists in the System Microservice.
 
-	--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	The Apolo Software Structure are defined by:
- 		Frontend
-   			This is the user interface, which call the backend to get the information and business logic.
-	  		Example to create an invoice, you need the information of:
-				Clients -> call the PersonsMicroservices, which has all the information about the clients/supplier/both.
-						The parameters request are: 
-									Endpoint: this is the  address of the Microservice.
-									Group: this can be Clients types, BusinessUnits, etc. This can be an array of Groups.
-									Others parameters defined by the microservice, needed to comply the request.
-				Articles -> call the ArticlesMicroservices, which has all information about the articles (things and services) and theirs relations.
-						The parameters request are: 
-								Endpoint: this is the  address of the Microservice.
-								Group: this can be articles types, BusinessUnits, etc. This can be an array of Groups.
-								Others parameters defined by the microservice, needed to comply the request.
-				Taxes -> call the TaxesMicrosevices, which has all infomation about the taxes subject.
-						The parameters request are: 
-								Endpoint: this is the  address of the Microservice.
-								GeneratorID: the seller ID.
-								DestiantionID: the client ID.
-								Others parameters defined by the microservice, needed to comply the request.
-			
-		Backend
-   			This is the logic and where the permanent information are stored.
-	  		Each Microservice specializes in a specific task. 
-	 		Next, the Apolo Microcervices Structure are defined by:
-		 		SystemsMicroSs
-		   			This microservices has the information about:
-						The main elements of the software.
-	  					The software structure, in java and databases, entities, tables, datatypes, etc.
-	  					The companies and theirs structures.
-						The microservices and the relations with the companies and business units.
-	  					Most of this tables are going to be part of other microservices like mirror tables. But only with data that they need.
-	  				The microservices structure are defined by:
-			  			Java project called ApoloSystemsMicroSs, this a restfull webservice java project.
-			  			MySql database called SystemsDB, this contain the permanent information of all the System software.
-			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
-				UsersMicroSs
-		   			This microservices has the information about:
-						The users, groups of users.
-	  					The permition and authorizations.
-	  				The microservices structure are defined by:
-			  			Java project called ApoloUsersMicroSs, this a restfull webservice java project.
-			  			MySql database called UsersDB, this contain the permanent information of all the Users.
-			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
-			 	PersonsMicroSs
-		   			This microservices has the information about the persons (legal and real).
-	  				Concept: Traders are the real link between the companies and theirs Clientes or Suppliers.
-			 							 The reason is that the Customer can change the cuit, the business name, or want to charge the bill to another cuit. But the Customer/Supplier is the same.
-										 To fix that, the relationship between Business and theirs customers or suppliers, are throw the traders. Are not direct with the real person.
-					 					 Importan: If the trader has only one persons relation, the software automaticaly make the selection.
-	  													 If the trade has two or more persons relations, the user must select, to wich person want to charge the invoice.				  
-	  				The microservices structure are defined by:
-			  			Java project called ApoloPersonsMicroSs, this a restfull webservice java project.
-			  			MySql database called PersonssDB, this contain the permanent information of all the Persons.
-			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
-  				ArticlesMicroSs
-		   			This microservices has the information about Articles (things or services):
-						The microservice can specialize:
-									1.- In branch of articles (Library, Car Supplier, Gift, etc). These articles are created by the System, and are common to all business units.
-				 					2.- In the articles of one company (can have the mix of things and services that sell). These articles are created by each users.
-									3.- In a mix of 1 and 2. You can have some common and custom articles.
-				 				Concept: The common articles are those that are unique ID in the world, they have standar barcode (EAN) and description.
-				 								 The custom articles are non standar, and the company can change them without advise.
-	  				The microservices structure are defined by:
-			  			Java project called ApoloArticlesMicroSs, this a restfull webservice java project.
-			  			MySql database called ArticlesDB, this contain the permanent information of all articles.
-			   			Kafka Topics Producer/Consumer, to update all the other Microservices.
+$`\textcolor{blue}{\text{TABLES}}`$ 
 
-========================================================================================================================================================================================
-Structure are as follows:
-  Used to create the Mirror Tables
-			Concept: When some value changed in the main table (SysBaseElements_Tbl), a Kaftka producer send this changed to a queue name SysBaseElements+BusinessUnitIDn+ScopeIDn.
-	 						 After the item microservices take this change from the queue, the update procedure is triggered, only for the values that are in this microservice.
-			ArtSysBaseElements_Mir	--> Contains the MIRROR of the diccionary of all system elements of the Microservice.
-			-- ArtSysBaseElementLanguages_Tbl	--> Contains the MIRROR of the meaning of the diccionary in other languages.
-			-- ArtSysBaseElementComments_Tbl	--> Contains the MIRROR of the comments/details/explains of each record of the diccionary.
-			-- ArtSysRootElements_Tli	--> This is the MIRROR of the List Table that contains the other element of the system. Enable the IDNum element to a Microservice and BusinessUnit.
-      -- ArtSysCompanies_Mir  --> Contain the MIRROR of the SysCompanies_Tbl information.
-	Used to create the main elements (In this tables we create all tables of the Microservices)
-		ArtDataElements_Tbl	--> Contains the diccionary of all articles data elements of the Microservice.
-    ArtDataElementOptionalFields_Tbl	--> Contains the optional fields/columns of the data elements.
-		ArtDataElementLanguages_Tbl	--> Contains the meaning of the diccionary in another languages than the default.
-		ArtDataElementComments_Tbl	--> Contains one or more comments/details/explains of each record of the diccionary.
-	Used to create a table which has an specific subject.
+**The are two types of tables.**
+- **Tbl** is the normal table, where stores the specific software data. This kind of table have relation with others tables of the same kind.
 
- Virtual Tables
- 	This types of tables are inside of the tables ArtDataElements_Tbl and ArtDataElementOptionalFields_Tbl. You diferences each table with the ScopeIDn. 
-		ArtGeneralProperties_Tbl	--> Contains the properties of the article general information.
-																  You save the information in the ArtDataElements_Tbl and the ArtDataElementOtherFields_Tbl, because this table is virtual.
-																	To define how to proceed with each field, the system take the information from the SysEntityStructures_Tbl. This table has information about the field like if the field could be null, the field data type, and the target table. (TargetTableIDn represent the real table where the data are saved). 
+> All tables have the key for each record:
+>- **ID** --> is the uniqueidentifier auto generated.
+>- **IDNum** --> is the autoincrement number auto generated.
+
+- **Tli** is the list table, in which only enable the IDNum for one Microservice and BusinessUnit. This kind of table do not have any relation with others.
+
+> [!NOTE]
+> Tables with their owns ID and IDNum. These are the common tables.
+> 
+> Tables without owns ID and IDNum, It is generated in SysBaseElements_Tbl.
+> 
+> Microservice_Tbl has not their own ID and IDNum.
+
+___
+### Scope
+The Scope are the tables of the software. 
+
+All scope are created in the SysBaseElements_Tbl. If some others properties of a specific record is needed, we add this information in the SysBaseElementOthersFiels_Tbl table.
+So with this type of database structure, all the record has a common and specific properties.
+> [!TIP]
+> In the Article database we can create all the articles with theirs specific properties without create new columns. We avoid have a lot of record with null values.
+> 
+> In the Supplier database we can create all the client an each one has their own properties.
+
+>[!IMPORTANT]
+ Each Scope must have defined a table structure in the software. 
+- When you create a Scope is a Table, which could be real or virtual, you need to create it in the sofware structure:
+    - EntityStructures_Tbl --> here you set up wich field it has.
+    - EntityFieldProperties_Tbl	--> here you set up the properties of each Field. (DataType, Lenght, etc)
+    - EntityFieldDefaultValues_Tbl	--> here you set up the default value, when the user do not send it. So the user fill only the changed values.
+
+___
+## The Apolo Software Structure are defined by:
+***Frontend***
+This is the user interface, which call the backend to get the information and business logic.
+Example to create an invoice, you need the information of:
+> Clients -> call the PersonsMicroservices, which has all the information about the clients/supplier/both.
+- The parameters request are: 
+    - Endpoint: this is the  address of the Microservice.
+    - Group: this can be Clients types, BusinessUnits, etc. This can be an array of Groups.
+    - Others parameters defined by the microservice, needed to comply the request.
+> Articles -> call the ArticlesMicroservices, which has all information about the articles (things and services) and theirs relations.
+- The parameters request are: 
+    - Endpoint: this is the  address of the Microservice.
+    - Group: this can be articles types, BusinessUnits, etc. This can be an array of Groups.
+    - Others parameters defined by the microservice, needed to comply the request.
+> Taxes -> call the TaxesMicrosevices, which has all infomation about the taxes subject.
+- The parameters request are: 
+    - Endpoint: this is the  address of the Microservice.
+    - GeneratorID: the seller ID.
+    - DestiantionID: the client ID.
+    - Others parameters defined by the microservice, needed to comply the request.
+
+***Backend***
+This is the logic and where the permanent information are stored.
+Each Microservice specializes in a specific task. 
+___
+### Data Base Structure
+***Structure are as follows:***
+---
+## The Apolo Software Structure are defined by:
+> SystemsMicroSs
+- ***This microservices has the information about:*** 
+    - The main elements of the software.
+    - The software structure, in java and databases, entities, tables, datatypes, etc.
+    - The companies and theirs structures.
+    - The microservices and the relations with the companies and business units.
+    - Most of this tables are going to be part of other microservices like mirror tables. But only with data that they need.
+- The microservices structure are defined by:
+    - Java project called ApoloSystemsMicroSs, this a restfull webservice java project.
+    - MySql database called SystemsDB, this contain the permanent information of all the System software.
+    - Kafka Topics Producer/Consumer, to update all the other Microservices.
+> UsersMicroSs
+- This microservices has the information about:
+    - The users, groups of users.
+    - The permition and authorizations.
+- The microservices structure are defined by:
+    - Java project called ApoloUsersMicroSs, this a restfull webservice java project.
+    - MySql database called UsersDB, this contain the permanent information of all the Users.
+    - Kafka Topics Producer/Consumer, to update all the other Microservices.
+> PersonsMicroSs
+- This microservices has the information about the persons (legal and real).
+> [!NOTE]
+> Traders are the real link between the companies and theirs Clientes or Suppliers.
+>
+> The reason is that the Customer can change the cuit, the business name, or want to charge the bill to another cuit. But the Customer/Supplier is the same.
+>
+> To fix that, the relationship between Business and theirs customers or suppliers, are throw the traders. Are not direct with the real person.
+>
+>  ***Importan:*** If the trader has only one persons relation, the software automaticaly make the selection.
+>
+> If the trade has two or more persons relations, the user must select, to wich person want to charge the invoice.				  
+
+- The microservices structure are defined by:
+    - Java project called ApoloPersonsMicroSs, this a restfull webservice java project.
+    - MySql database called PersonssDB, this contain the permanent information of all the Persons.
+    - Kafka Topics Producer/Consumer, to update all the other Microservices.
+
+> ***ArticlesMicroSs***
+This microservices has the information about Articles (things or services):
+
+The microservice can specialize:
+1.- In branch of articles (Library, Car Supplier, Gift, etc). These articles are created by the System, and are common to all business units.
+2.- In the articles of one company (can have the mix of things and services that sell). These articles are created by each users.
+3.- In a mix of 1 and 2. You can have some common and custom articles.
+
+> [!NOTE]
+> The common articles are those that are unique ID in the world, they have standar barcode (EAN) and description.
+>
+> The custom articles are non standar, and the company can change them without advise.
+- The microservices structure are defined by:
+    - Java project called ApoloArticlesMicroSs, this a restfull webservice java project.
+    - MySql database called ArticlesDB, this contain the permanent information of all articles.
+    - Kafka Topics Producer/Consumer, to update all the other Microservices.
+---
+### Structure are as follows:
+> [!NOTE]
+> When some value changed in the main table (SysBaseElements_Tbl), a Kaftka producer send this changed to a queue name SysBaseElements+BusinessUnitIDn+ScopeIDn.
+>
+> After the item microservices take this change from the queue, the update procedure is triggered, only for the values that are in this microservice.
+- ***Used to create the Mirror Tables***
+    - ***ArtSysBaseElements_Mir*** --> Contains the MIRROR of the diccionary of all system elements of the Microservice.
+    - ***ArtSysBaseElementLanguages_Tbl*** --> Contains the MIRROR of the meaning of the diccionary in other languages.
+    - ***ArtSysBaseElementComments_Tbl*** --> Contains the MIRROR of the comments/details/explains of each record of the diccionary.
+    - ***ArtSysRootElements_Tli*** --> This is the MIRROR of the List Table that contains the other element of the system. Enable the IDNum element to a Microservice and BusinessUnit.
+  
+- ArtSysCompanies_Mir  --> Contain the MIRROR of the SysCompanies_Tbl information.
+
+ Used to create the main elements (In this tables we create all tables of the Microservices)
+    - ArtDataElements_Tbl	--> Contains the diccionary of all articles data elements of the Microservice.
+- ArtDataElementOptionalFields_Tbl	--> Contains the optional fields/columns of the data elements.
+    - ArtDataElementLanguages_Tbl	--> Contains the meaning of the diccionary in another languages than the default.
+    - ArtDataElementComments_Tbl	--> Contains one or more comments/details/explains of each record of the diccionary.
+
+- Used to create a table which has an specific subject.
+
+### Virtual Tables
+This types of tables are inside of the tables ArtDataElements_Tbl and ArtDataElementOptionalFields_Tbl. You diferences each table with the ScopeIDn. 
+
+- ArtGeneralProperties_Tbl --> Contains the properties of the article general information.
+
+Important: Before create an article, it is necesary create an ArtGeneralProperty.
+
+You save the information in the ArtDataElements_Tbl and the ArtDataElementOtherFields_Tbl, because this table is virtual.
+
+> [!IMPORTANT]
+> To define how to proceed with each field, the system take the information from the SysEntityStructures_Tbl.
+>
+> This table has information about the field like if the field could be null, the field data type, and the target table. (TargetTableIDn represent the real table where the data are saved). 
 																	
-				Important: Before create an article, it is necesary create an ArtGeneralProperty.
 
-    	--	ArtGeneralPropertyOptionalFields_Tbl	--> Contains the optional fields/columns of the general property.
-  Used to create the articles
-		Articles_Tbl	--> Contains the articles informations. This table has the article for each Microservice. 
-    ArticleOptionalFields_Tbl  --> Contains the optional fields/columns of the articles informations.
-    ArtRelations_Tbl  --> Contains the relation between articles. It could be substitutes, complementary, etc.
+- ***ArtGeneralPropertyOptionalFields_Tbl*** --> Contains the optional fields/columns of the general property.
+- Used to create the articles
+    - ***Articles_Tbl*** --> Contains the articles informations. This table has the article for each Microservice.
+    - ***ArticleOptionalFields_Tbl*** --> Contains the optional fields/columns of the articles informations.
+    - ***ArtRelations_Tbl*** --> Contains the relation between articles. It could be substitutes, complementary, etc.
 
-	Used to create multiples tables
-		ArtRootElements_Tli	--> This is a List Table that contains the other data element of the system. Enable the IDNum element to a Microservice.
+- Used to create multiples tables
+    - ***ArtRootElements_Tli*** --> This is a List Table that contains the other data element of the system. Enable the IDNum element to a Microservice.
 
 ========================================================================================================================================================================================
 Detailed explanation of each table.
