@@ -61,7 +61,7 @@ CREATE TABLE `ArtDataElements_Tbl` (
 	  `IDName` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'The IDName is the user-readable code for the selected language.',
 	  `IDNameStructureIDn` int NOT NULL COMMENT 'The IDNameStructureIDn is the IDNum of the IDName structure, if the IDName is multivalued, here it refers to the structure.',
 	  `ScopeIDn` int NOT NULL COMMENT 'The ScopeIDn is the IdNum of the Scope, the Name must be unique for the scope of application, usually a Table',
-	  `GroupIDn` int NOT NULL COMMENT 'The GroupIDn is the IdNum of the Group to which the IDName is assigned',
+	  `GroupIDn` int NOT NULL COMMENT 'The GroupIDn this can be articles types, BusinessUnits, Company, etc. This can be an array of Groups.',
 	  `LanguageIDn` int NOT NULL COMMENT 'The LanguageIDn is the IdNum of the language in which the Name is defined',
 	  `IDCode` int NOT NULL COMMENT 'The IDCode is the unique code of the record for a scope and company.',
 	  `DefinitionIDn` int NOT NULL COMMENT 'The DefinitionIDn is the IdNum of the element definition type.',
